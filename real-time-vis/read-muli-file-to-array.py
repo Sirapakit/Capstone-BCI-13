@@ -57,6 +57,6 @@ for edf_file_name in edf_file_names:
     all_X.append(X)
     all_y.append(y)
 
-# print(all_X)
+print(all_X)
 # plt.plot(all_X, all_y)
 # plt.show()

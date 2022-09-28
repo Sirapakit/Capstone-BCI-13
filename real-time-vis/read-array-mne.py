@@ -3,17 +3,9 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from sklearn.pipeline import Pipeline
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
-from sklearn.model_selection import ShuffleSplit, cross_val_score
-
 import mne
 from mne import Epochs, pick_types, find_events, pick_types, set_eeg_reference
-from mne.channels import read_layout
 from mne.io import concatenate_raws, read_raw_edf
-from mne.datasets import eegbci
-from mne.decoding import CSP
-from mne import viz
 
 # setup path
 # myPath = r"../dataset/chb15"
@@ -36,13 +28,26 @@ print(
     f'Size of F8-T8 channel {f8_t8_channel_info.get_data().shape} and the info are\n')
 print(f8_t8_channel_info)
 
+# Create X, y from f8_t8_channel_info
+seizure_time = {"start": 272, "stop": 397}
+state = {"preictal": 0, "ictal": 1, "interictal": 2}
+X = f8_t8_channel_info.get_data()
+y = np.zeros((921600,), dtype=int)
+y[:seizure_time["start"]-1] = state["preictal"]
+y[seizure_time["start"]:seizure_time["stop"]] = state["ictal"]
+y[seizure_time["stop"]+1:] = state["interictal"]
+
+print(f'Type of X is {type(X)}')
+print(f'Size of X is {X.shape}')
+print(y)
+
 # plot PSD
 # f8_t8_channel_info.plot_psd(tmax=np.inf, fmax=128)
 
 # Extract events from raw data
-events, event_ids = mne.events_from_annotations(raw, event_id='seizure')
-print(event_ids)
-print(events)
+# events, event_ids = mne.events_from_annotations(raw, event_id='seizure')
+# print(event_ids)
+# print(events)
 
 # print for debug
 print("Success")

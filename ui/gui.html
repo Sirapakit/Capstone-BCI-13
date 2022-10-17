@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" type="text/css" href="home_page_component.css" />
+    </head>
+    <body>
+        <div class="cover_rectangle"></div> 
+        <div class="cover_circle"></div> 
+            <img
+                class="main_menu" 
+                src="main-menu.png" 
+                alt= 'icon "menu"'
+            />
+            <img
+                class="logo" 
+                src="brain (1).png" 
+                alt="logo"
+            />
+
+        <div class="cover_rectangle_2"></div>
+            <img
+            class="seizure-prediction" 
+            src="https://anima-uploads.s3.amazonaws.com/projects/634932815ca152198d033d75/releases/6349328acf01eae0f574d918/img/seizure-prediction@1x.png"
+            alt="Seizure Prediction"
+            />
+
+        <div class="menu_rectangle"></div>
+            <img
+                class="icon-home" 
+                src="home.png" 
+                alt='icon "home"'
+            />
+            <img
+                class="icon-group" 
+                src="group.png" 
+                alt='icon "group"'
+            />
+            <img
+                class="gr1-1" 
+                src="https://anima-uploads.83.amazonaws.com/projects/634932815ca152198d033d75/releases/6349328acf01eae8f574d918/img/gr1-101x.png" 
+                alt="gr1 1"
+            />
+
+        <div class="play_circle"> 
+            <img
+                class="icon-media-play" 
+                src="play.png"
+                alt='icon "media play"'
+            /> 
+        </div>
+
+        <h1 class="seizure_stages inter-bold-black-40px">Seizure Stages </h1> 
+
+        <div class="display_stage_rectangle">
+            <div class="seizure-onset inter-bold-black-40px">Seizure Onsets</div>
+        </div>
+
+        
+        <div class="filter_50 inter-bold-black-20px">50 Hz Filter
+            <label class = "switch"><input type= "checkbox"><span class="slider round"></span></label>
+        </div>
+        
+        <div class="filter_60 inter-bold-black-20px">60 Hz Filter
+            <label class = "switch"><input type= "checkbox"><span class="slider round"></span></label>
+        </div>
+
+        <div>
+        <h1 class="countdown-timer inter-bold-black-40px">Countdown Timer</h1> 
+        </div>
+
+        <div class="main_container display_countdown_timer">
+            <div class="circle_container display_countdown_timer">
+                <div class="semicircle"></div>
+                <div class="semicircle"></div>
+                <div class="semicircle"></div>
+                <div class="outermost_circle"></div>
+            </div>
+            <div class="time_container display_countdown_timer">
+                <div class="timer display_countdown_timer"></div>
+            </div>
+            
+        </div>
+        <script src="timer_component.js"></script>
+    </body> 
+</html>

@@ -16,12 +16,14 @@ print('the (cropped) sample data object has {} time samples and {} channels.'
       ''.format(n_time_samps, n_chan))
 print(f'The last time sample is at {time_secs[-1]} seconds.')
 print(f"The first few channel names are {', '.join(ch_names[:3])}.")
+print(f"The channel names are {ch_names}.")
 print()
 
 # plt.savefig('foo2.png')
 
-raw.pick_channels(['F8-T8']).crop(tmin=0.00, tmax=1.00).plot()
+# raw.pick_channels(['F8-T8']).crop(tmin=0.00, tmax=1.00).plot()
 # raw.pick_channels(['F8-T8']).crop(tmin=1.00, tmax=2.25).plot()
+raw.plot()
 
 plt.show()
 

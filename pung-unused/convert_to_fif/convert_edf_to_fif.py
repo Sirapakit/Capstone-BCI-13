@@ -1,7 +1,5 @@
 import mne
-import mne.viz
 import numpy as np
-import matplotlib.pyplot as plt
 
 # Load .edf data 
 data_file = '../dataset/chb15/chb15_06.edf'
@@ -29,7 +27,7 @@ trig[0][69632] = time_stamp["soz_start"]
 trig[0][101632] = time_stamp["soz_stop"]
 
 # print debug to see the array change from 0 -> 1 and 0 -> 2
-# print(f'{trig[0][69630:69635]} and {trig[0][101630:101635]}')
+print(f'{trig[0][69630:69635]} and {trig[0][101630:101635]}')
 
 # append to create shape (39)
 # print(raw_array.shape)
@@ -57,3 +55,11 @@ print(f'Hello {raw_with_trig}')
 
 filename_fif = "chb15_06.raw.fif"
 raw_with_trig.save(filename_fif)
+
+# Save to numpy file
+# data = raw.get_data()
+# np.save(file='my_data.npy', arr=data)
+
+# events parameter should have 2 indices
+# events[0] is 
+# events[1] is 

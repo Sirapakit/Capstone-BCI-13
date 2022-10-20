@@ -1,27 +1,20 @@
-"""Example program to demonstrate how to send a multi-channel time series to
-LSL."""
 import sys
 import getopt
-
 import time
 from random import random as rand
-
 from pylsl import StreamInfo, StreamOutlet, local_clock
-
 import mne
 import numpy as np
 from numpy import loadtxt
 
-#CSVData = open("chb01_04.csv")
-#Array1d_result = loadtxt(CSVData, delimiter=",") 
-#x1 = np.array(list(map(np.float, Array2d_result)))
 file = "chb01_04.edf"
 data = mne.io.read_raw_edf(file)
-raw_data = data.get_data()
-# you can get the metadata included in the file and a list of all channels:
-info = data.info
-channels = data.ch_names
-
+#raw_data = data.get_data()
+#info = data.info
+# channels = data.ch_names
+raw_pick_channels = data.pick_channels(['F8-T8']).get_data().tolist()
+raw_pick_channels_0 = raw_pick_channels[0]
+print(raw_pick_channels[0][:23])
 
 def main(argv):
     srate = 256
@@ -47,11 +40,6 @@ def main(argv):
         elif opt in ("-t", "--type"):
             type = arg
 
-    # first create a new stream info (here we set the name to BioSemi,
-    # the content-type to EEG, 8 channels, 100 Hz, and float-valued data) The
-    # last value would be the serial number of the device or some other more or
-    # less locally unique identifier for the stream as far as available (you
-    # could also omit it but interrupted connections wouldn't auto-recover)
     info = StreamInfo(name, type, n_channels, srate, 'float32', 'myuid34234')
 
     # next make an outlet
@@ -60,21 +48,16 @@ def main(argv):
     print("now sending data...")
     start_time = local_clock()
     sent_samples = 0
+    
     while True:
         elapsed_time = local_clock() - start_time
         required_samples = int(srate * elapsed_time) - sent_samples
         for sample_ix in range(required_samples):
-            # make a new random n_channels sample; this is converted into a
-            # pylsl.vectorf (the data type that is expected by push_sample)
-            # mysample = data
-            mysample = raw_data
-            #[rand() for _ in range(n_channels)]
-            # now send it
+            mysample = [raw_pick_channels_0[i] for i in range(n_channels)]
+            # [rand() for _ in range(n_channels)]
             outlet.push_sample(mysample)
         sent_samples += required_samples
-        # now send it and wait for a bit before trying again.
         time.sleep(0.01)
-
 
 if __name__ == '__main__':
     main(sys.argv[1:])

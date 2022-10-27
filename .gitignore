@@ -1,4 +1,9 @@
 dataset/
+*.npy
+*.csv
+*.raw.fif
+*.edf
+*.fif
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

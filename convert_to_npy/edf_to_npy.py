@@ -2,9 +2,10 @@ import mne
 import mne.viz
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
  
 # Load .edf data
-data_file = '../dataset/chb15/chb15_06.edf'
+data_file = '../dataset/chb15/chb15_15.edf'
 raw = mne.io.read_raw(data_file)
 
 # Get data from edf as np.array
@@ -17,11 +18,13 @@ seizure_event = { "inter_ictal" : 0, "seizure_onset" : 1, "ictal" : 2 }
 event_array = np.zeros((1,921600))
 
 # Assign value to event_array according to summary.txt
-event_array[0][61952:69632] = seizure_event["seizure_onset"]
-# 242 * 256 = 61952   # 272 * 256 = 69631
-event_array[0][69632:101633] = seizure_event["ictal"]
-# 272 * 256 = 69631   # 397 * 256 = 101632
-# print(f'Check event_array {event_array[0][60000:610002]}')
+event_array[0][399616:407296] = seizure_event["seizure_onset"]
+# Start : 1082 - 30 = 
+# Start : 1591 - 30 =
+event_array[0][407296:447488] = seizure_event["ictal"]
+# End : 1113
+# End : 1748 
+# print(f'Check event_array {event_array[0][399616:399646]}')
 
 # Append to raw_array
 np.append(raw_array, event_array, axis=0)
@@ -37,12 +40,12 @@ raw_array_with_seizure_event[38][:] = event_array
 
 # Pick 3 channels to create .csv
 Fp2_T8_channel = raw_array_with_seizure_event[19] 
-F8_T9_channel = raw_array_with_seizure_event[20]
+F8_T8_channel = raw_array_with_seizure_event[20]
 seizure_event_channel = raw_array_with_seizure_event[38]
 
 final_array = np.zeros((3, 921600))
-final_array[0][:] = Fp2_T8_channel
-final_array[1][:] = F8_T9_channel
+final_array[0][:] = Fp2_T8_channel 
+final_array[1][:] = F8_T8_channel
 final_array[2][:] = seizure_event_channel 
 
 final_array[0] = (final_array[0]-np.min(final_array[0]))/(np.max(final_array[0])-np.min(final_array[0]))
@@ -54,8 +57,14 @@ print(np.min(final_array[0]))
 print(np.max(final_array[1]))
 print(np.min(final_array[1]))
 
-# Create .csv with pd 
-df = pd.DataFrame(final_array.transpose(), columns=['Fp2-T8', 'F8-T8', 'event'])
-df.to_csv('chb15_06.csv')
+# Save numpy array as npy file
+# get data
+data = final_array
+# save to npy file
+# np.save('data_chb15_15.npy', data)
+
+
+
+
 
 

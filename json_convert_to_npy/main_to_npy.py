@@ -3,7 +3,7 @@ import mne.viz
 import numpy as np
 import json
  
-data = open('./info_chb15_17.json')
+data = open('./info_chb15_54.json')
 f = json.load(data)
 
 data_file = '../dataset/' + f['patient_ID'] + '/' + f['raw_name']
@@ -16,13 +16,41 @@ seizure_event = { 'inter_ictal' : 0, 'seizure_onset' : 1, 'ictal' : 2 }
 event_array = np.zeros((1,921600))
 
 sampling_rate = 256
-soz_start_sample = sampling_rate * (f['time_stamp']['start'] - 30)
-start_sample = sampling_rate * (f['time_stamp']['start'])
-end_sample = sampling_rate * (f['time_stamp']['end'])
+number_of_seizure = f['number_of_seizure']
+soz_start_sample = sampling_rate * (f['time_stamp']['start'][0] - 30)
+start_sample = sampling_rate * (f['time_stamp']['start'][0])
+end_sample = sampling_rate * (f['time_stamp']['end'][0])
 
-event_array[0][soz_start_sample:start_sample] = seizure_event['seizure_onset']
-event_array[0][start_sample:end_sample] = seizure_event['ictal']
-np.append(raw_array, event_array, axis=0)
+def box_text(text):
+    lines = text.splitlines()
+    width = max(len(s) for s in lines)
+    res = [' '*7 + '#' + '─' * width + '#']
+    for s in lines:
+        res.append(' '*7 + '│' + (s + ' ' * width)[:width] + '│')
+    res.append(' '*7 + '#' + '─' * width + '#')
+    return '\n'.join(res)
+
+if (number_of_seizure == 0 ):
+    print(box_text('NO SEIZURE DETECT'))
+    np.append(raw_array, event_array, axis=0)
+
+elif (number_of_seizure == 1):
+    print(box_text('1 SEIZURE DETECT'))
+    event_array[0][soz_start_sample:start_sample] = seizure_event['seizure_onset']
+    event_array[0][start_sample:end_sample] = seizure_event['ictal']
+    np.append(raw_array, event_array, axis=0)
+
+elif (number_of_seizure >= 2):
+    print(box_text(f'{str(number_of_seizure).upper()} SEIZURE DETECT'))
+    for i in range(number_of_seizure):
+        event_array[0][sampling_rate * (f['time_stamp']['start'][i] - 30):
+                       sampling_rate * (f['time_stamp']['start'][i])] = seizure_event['seizure_onset']
+        event_array[0][sampling_rate * (f['time_stamp']['start'][i]):
+                       sampling_rate * (f['time_stamp']['end'][i])] = seizure_event['ictal']
+        np.append(raw_array, event_array, axis=0)
+
+else:
+    print(box_text('ERROR: WRONG NUMBER_SEIZURE'))
 
 channels_number = f['channels']["number"]
 new_channels_number = channels_number + 1

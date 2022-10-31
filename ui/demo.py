@@ -15,9 +15,9 @@ import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore, QtGui, QtWidgets
 from typing import List
 
-plot_duration = 5  # how many seconds of data to show
-update_interval = 60  # ms between screen updates
-pull_interval = 500 # ms between each pull operation
+plot_duration = 5 # how many seconds of data to show
+update_interval = 30  # ms between screen updates
+pull_interval = 250 # ms between each pull operation
 
 
 class Inlet:
@@ -30,7 +30,6 @@ class Inlet:
     def pull_and_plot(self, plot_time: float, plt: pg.PlotItem):
         
         pass
-
 
 class DataInlet(Inlet):
     dtypes = [[], np.float32, np.float64, None, np.int32, np.int16, np.int8, np.int64]
@@ -51,7 +50,7 @@ class DataInlet(Inlet):
         _, ts = self.inlet.pull_chunk(timeout=0.0,
                                       max_samples=self.buffer.shape[0],
                                       dest_obj=self.buffer)
-        # ts will be empty if no samples were pulled, a list of timestamps otherwise
+       
         if ts:
             ts = np.asarray(ts)
             y = self.buffer[0:ts.size, :]
@@ -59,23 +58,12 @@ class DataInlet(Inlet):
             old_offset = 0
             new_offset = 0
             for ch_ix in range(self.channel_count):
-                # we don't pull an entire screen's worth of data, so we have to
-                # trim the old data and append the new data to it
                 old_x, old_y = self.curves[ch_ix].getData()
-                # the timestamps are identical for all channels, so we need to do
-                # this calculation only once
                 if ch_ix == 0:
-                    # find the index of the first sample that's still visible,
-                    # i.e. newer than the left border of the plot
                     old_offset = old_x.searchsorted(plot_time)
-                    # same for the new data, in case we pulled more data than
-                    # can be shown at once
                     new_offset = ts.searchsorted(plot_time)
-                    # append new timestamps to the trimmed old timestamps
                     this_x = np.hstack((old_x[old_offset:], ts[new_offset:]))
-                # append new data to the trimmed old data
                 this_y = np.hstack((old_y[old_offset:], y[new_offset:, ch_ix] - ch_ix))
-                # replace the old data
                 self.curves[ch_ix].setData(this_x, this_y)
 
 
@@ -91,83 +79,35 @@ class MarkerInlet(Inlet):
 
 
 class Window(QWidget):
-    # def main():
     def __init__(self, parent=None):
-        super(Window, self).__init__(parent)    
-        inlets: List[Inlet] = []
+        super(Window, self).__init__(parent)
+        self.inlets: List[Inlet] = []
         print("looking for streams")
-        streams = pylsl.resolve_streams()
-
+        self.streams = pylsl.resolve_streams()
         # Create the pyqtgraph window
         self.pw = pg.PlotWidget(title='LSL Plot')
-        
-        plt = self.pw.getPlotItem()
+        self.plt = self.pw.getPlotItem()
 
-        # plt.enableAutoRange(x=False, y=True)
-
-        # iterate over found streams, creating specialized inlet objects that will
-        # handle plotting the data
-        for info in streams:
-            if info.type() == 'Markers':
-                if info.nominal_srate() != pylsl.IRREGULAR_RATE \
-                        or info.channel_format() != pylsl.cf_string:
-                    print('Invalid marker stream ' + info.name())
-                print('Adding marker inlet: ' + info.name())
-                inlets.append(MarkerInlet(info))
-            elif info.nominal_srate() != pylsl.IRREGULAR_RATE \
-                    and info.channel_format() != pylsl.cf_string:
-                print('Adding data inlet: ' + info.name())
-                inlets.append(DataInlet(info, plt))
-            else:
-                print('Don\'t know what to do with stream ' + info.name())
-
-        def scroll():
-            """Move the view so the data appears to scroll"""
-            # We show data only up to a timepoint shortly before the current time
-            # so new data doesn't suddenly appear in the middle of the plot
-            fudge_factor = pull_interval * .002
-            plot_time = pylsl.local_clock()
-            self.pw.setXRange(plot_time - plot_duration + fudge_factor, plot_time - fudge_factor)
-
-        def update():
-            # def update(self):
-            # Read data from the inlet. Use a timeout of 0.0 so we don't block GUI interaction.
-                mintime = pylsl.local_clock() - plot_duration
-            # call pull_and_plot for each inlet.
-            # Special handling of inlet types (markers, continuous data) is done in
-            # the different inlet classes.
-                for inlet in inlets:
-                    inlet.pull_and_plot(mintime, plt)
-
-        # create a timer that will move the view every update_interval ms
-        update_timer = QtCore.QTimer()
-        update_timer.timeout.connect(scroll)
-        update_timer.start(update_interval)
-        # create a timer that will pull and add new data occasionally
-        pull_timer = QtCore.QTimer()
-        pull_timer.timeout.connect(update)
-        pull_timer.start(pull_interval)
-
-        self.left_layout = QHBoxLayout(self)
+        self.left_layout = QHBoxLayout()
         self.left_layout.addWidget(self.pw)
         self.left_widget = QWidget()
         self.left_widget.setLayout(self.left_layout)
 
         self.l_bottom_layout = QHBoxLayout()
-        toggle_1_label = QLabel()
-        toggle_1_label.setText('Test with 50Hz Filter')
-        toggle_2_label = QLabel()
-        toggle_2_label.setText('Test with 60Hz Filter')
-        toggle_1 = Toggle()  # default color
-        toggle_1.released.connect(update)
-        toggle_2 = AnimatedToggle(
+        self.toggle_1_label = QLabel()
+        self.toggle_1_label.setText('Test with 50Hz Filter')
+        self.toggle_2_label = QLabel()
+        self.toggle_2_label.setText('Test with 60Hz Filter')
+        self.toggle_1 = Toggle()  # default color
+        self.toggle_1.released.connect(self.update_lsl)
+        self.toggle_2 = AnimatedToggle(
             checked_color="#FFB000",
             pulse_checked_color="#44FFB000"
         ) # orange color
-        self.l_bottom_layout.addWidget(toggle_1_label)
-        self.l_bottom_layout.addWidget(toggle_1)
-        self.l_bottom_layout.addWidget(toggle_2_label)
-        self.l_bottom_layout.addWidget(toggle_2)
+        self.l_bottom_layout.addWidget(self.toggle_1_label)
+        self.l_bottom_layout.addWidget(self.toggle_1)
+        self.l_bottom_layout.addWidget(self.toggle_2_label)
+        self.l_bottom_layout.addWidget(self.toggle_2)
         self.l_bottom_widget = QWidget()
         self.l_bottom_widget.setLayout(self.l_bottom_layout)
 
@@ -226,7 +166,36 @@ class Window(QWidget):
         self.layout = QVBoxLayout()
         self.layout.addWidget(self.splitter3)
         self.setLayout(self.layout)
+    
+    def update_lsl(self):
+        if self.toggle_1.isChecked():
+            for info in self.streams:
+                if info.nominal_srate() != pylsl.IRREGULAR_RATE \
+                        and info.channel_format() != pylsl.cf_string:
+                    print('Adding data inlet: ' + info.name())
+                    self.inlets.append(DataInlet(info, self.plt))
+                else:
+                    print('Don\'t know what to do with stream ' + info.name())
 
+            mintime = pylsl.local_clock() - plot_duration
+            for inlet in self.inlets:
+                inlet.pull_and_plot(mintime, self.plt)
+
+        # create a timer that will move the view every update_interval ms
+        self.update_timer = QtCore.QTimer()
+        self.update_timer.timeout.connect(self.scroll)
+        self.update_timer.start(update_interval)
+        # create a timer that will pull and add new data occasionally
+        self.pull_timer = QtCore.QTimer()
+        self.pull_timer.timeout.connect(self.update_lsl)
+        self.pull_timer.start(pull_interval)
+
+
+    def scroll(self):
+        fudge_factor = pull_interval * .002
+        plot_time = pylsl.local_clock()
+        self.pw.setXRange(plot_time - plot_duration + fudge_factor, plot_time - fudge_factor)
+        
     def message(self, s):
         font = QFont ()
         font.setPointSize (14)

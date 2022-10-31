@@ -7,6 +7,7 @@ from qtwidgets import Toggle, AnimatedToggle
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
+import time
 
 import numpy as np
 import math
@@ -99,7 +100,7 @@ class Window(QWidget):
         self.toggle_2_label = QLabel()
         self.toggle_2_label.setText('Test with 60Hz Filter')
         self.toggle_1 = Toggle()  # default color
-        self.toggle_1.released.connect(self.update_lsl)
+        self.toggle_1.pressed.connect(self.update_lsl)
         self.toggle_2 = AnimatedToggle(
             checked_color="#FFB000",
             pulse_checked_color="#44FFB000"
@@ -174,13 +175,9 @@ class Window(QWidget):
                         and info.channel_format() != pylsl.cf_string:
                     print('Adding data inlet: ' + info.name())
                     self.inlets.append(DataInlet(info, self.plt))
-                else:
-                    print('Don\'t know what to do with stream ' + info.name())
-
             mintime = pylsl.local_clock() - plot_duration
             for inlet in self.inlets:
                 inlet.pull_and_plot(mintime, self.plt)
-
         # create a timer that will move the view every update_interval ms
         self.update_timer = QtCore.QTimer()
         self.update_timer.timeout.connect(self.scroll)
@@ -189,13 +186,25 @@ class Window(QWidget):
         self.pull_timer = QtCore.QTimer()
         self.pull_timer.timeout.connect(self.update_lsl)
         self.pull_timer.start(pull_interval)
-
-
+        self.start_process()
+        
     def scroll(self):
         fudge_factor = pull_interval * .002
         plot_time = pylsl.local_clock()
         self.pw.setXRange(plot_time - plot_duration + fudge_factor, plot_time - fudge_factor)
         
+    def start_process(self):
+        if self.p is None:
+            self.p = QProcess()
+            self.p.readyReadStandardOutput.connect(self.handle_stdout)
+            self.p.finished.connect(self.process_finished)
+            self.p.start("python", ['C:\\Users\\ASUS\\Desktop\\testdata\\GUI\\demo_stage.py'])
+
+    def handle_stdout(self):
+        data = self.p.readAllStandardOutput()
+        stdout = bytes(data).decode("utf8")
+        self.message(stdout)
+
     def message(self, s):
         font = QFont ()
         font.setPointSize (14)
@@ -205,18 +214,6 @@ class Window(QWidget):
         if s == "\tSeizure-onset":
             self.start = True
         self.text_stage.setFont(font)
-        
-    def start_process(self):
-        if self.p is None:
-            self.p = QProcess()
-            self.p.readyReadStandardOutput.connect(self.handle_stdout)
-            self.p.finished.connect(self.process_finished)
-            self.p.start("python", ['demo_stage.py'])
-
-    def handle_stdout(self):
-        data = self.p.readAllStandardOutput()
-        stdout = bytes(data).decode("utf8")
-        self.message(stdout)
 
     def process_finished(self):
         self.p = None

@@ -1,10 +1,10 @@
 {
     "patient_ID":"chb15",
-    "raw_name": "chb15_17.edf",
+    "raw_name": "chb15_01.edf",
     "channels": {
-        "number": 38,
-        "Fp2_F8": 20,
-        "F8_T8": 21
+        "number": 31,
+        "Fp2_F8": 19,
+        "F8_T8": 20
     },
     "time_stamp" : {
         "start": [1925],

@@ -82,6 +82,10 @@ class MarkerInlet(Inlet):
 class Window(QWidget):
     def __init__(self, parent=None):
         super(Window, self).__init__(parent)
+        self.setWindowIcon(QtGui.QIcon('C:\\Users\\ASUS\\Desktop\\testdata\\GUI\\brain (1).png'))
+        title = "Seizure Prediction"
+        # set the title
+        self.setWindowTitle(title)
         self.inlets: List[Inlet] = []
         print("looking for streams")
         self.streams = pylsl.resolve_streams()
@@ -120,11 +124,8 @@ class Window(QWidget):
         self.text_stage_label.setText('Seizure Stage')
         self.text_stage_label.setFont(font_stage)
         self.p = None
-        self.btn = QPushButton('Test Seizure Stage')
-        self.btn.pressed.connect(self.start_process)
         self.text_stage = QPlainTextEdit()
         self.right_layout = QVBoxLayout()
-        self.right_layout.addWidget(self.btn)
         self.right_layout.addWidget(self.text_stage_label)
         self.right_layout.addWidget(self.text_stage)
         self.right_widget = QWidget()

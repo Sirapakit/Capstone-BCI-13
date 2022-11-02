@@ -1,0 +1,14 @@
+{
+    "patient_ID":"chb07",
+    "raw_name": "chb07_13.edf",
+    "channels": {
+        "number": 23,
+        "Fp2_F8": 13,
+        "F8_T8": 14
+    },
+    "time_stamp" : {
+        "start": [3285],
+        "end": [3381]
+    },
+    "number_of_seizure": 1
+}

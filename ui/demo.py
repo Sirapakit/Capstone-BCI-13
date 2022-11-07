@@ -16,8 +16,8 @@ from pyqtgraph.Qt import QtCore, QtGui, QtWidgets
 from typing import List
 
 plot_duration = 5 # how many seconds of data to show
-update_interval = 30  # ms between screen updates
-pull_interval = 250 # ms between each pull operation
+update_interval = 0  # ms between screen updates
+pull_interval = 0 # ms between each pull operation
 
 
 class Inlet:
@@ -192,7 +192,8 @@ class TestWindow(QWidget):
         self.right_widget.setLayout(self.right_layout)
 
         second = 30
-        self.count = second * 10
+        # self.count = second * 10
+        self.count = second
         self.start = False
         font_timer = QFont()
         font_timer.setPointSize (14)
@@ -291,7 +292,8 @@ class TestWindow(QWidget):
             self.label.setText(" Seizure !!!! ")
   
         if self.start:
-            text = str(self.count / 10) + " s"
+            # text = str(self.count / 10) + " s"
+            text = "00:" + str(self.count) + " s"
             self.label.setText(text)
     
 class Realtime_page(QMainWindow):

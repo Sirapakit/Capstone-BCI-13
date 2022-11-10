@@ -68,7 +68,7 @@ def main(argv):
                 # [raw_pick_channels_0[i] for i in range(n_channels)]
                 # [F8_T9_channel[i] for i in range(n_channels)]
             outlet.push_sample(mysample)
-            print(mysample)
+            # print(mysample)
         sent_samples += required_samples
         time.sleep(0.0004)
 

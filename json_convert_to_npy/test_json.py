@@ -1,6 +1,6 @@
 import json
   
-data = open('./info_chb15_17.json')
+data = open('./chb15/info_chb15_17.json')
 f = json.load(data)
 
 # print(f['patient_ID'])
@@ -27,7 +27,8 @@ if (number_of_seizure == 0 ):
 elif (number_of_seizure == 1):
     print(box_text('1 SEIZURE DETECT'))
 elif (number_of_seizure >= 2):
-    print(box_text(f'{str(number_of_seizure).upper()} SEIZURE DETECT'))
+    for i in range (number_of_seizure):
+        print(box_text(f'{str(number_of_seizure).upper()} SEIZURE DETECT'))
 else:
     print(box_text('ERROR: WRONG NUMBER_SEIZURE'))
 

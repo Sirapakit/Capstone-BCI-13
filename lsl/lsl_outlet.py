@@ -20,10 +20,9 @@ test_L = test_T.tolist()
 #raw_data = data.get_data()
 #info = data.info
 # channels = data.ch_names
-# # raw_pick_channels = data.pick_channels(['F8-T8']).get_data().tolist()
-# # raw_pick_channels_0 = raw_pick_channels[0]
+# raw_pick_channels = data.pick_channels(['F8-T8']).get_data().tolist()
+# raw_pick_channels_0 = raw_pick_channels[0]
 # print(type(raw_pick_channels))
-# # print(type(raw_pick_channels))
 # print(raw_pick_channels[0][:23])
 
 def main(argv):
@@ -69,7 +68,7 @@ def main(argv):
                 # [raw_pick_channels_0[i] for i in range(n_channels)]
                 # [F8_T9_channel[i] for i in range(n_channels)]
             outlet.push_sample(mysample)
-            print(mysample)
+            # print(mysample)
         sent_samples += required_samples
         time.sleep(0.0004)
 

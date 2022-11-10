@@ -14,6 +14,7 @@ import pylsl
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore, QtGui, QtWidgets
 from typing import List
+import time
 
 plot_duration = 5 # how many seconds of data to show
 update_interval = 0  # ms between screen updates
@@ -191,9 +192,9 @@ class TestWindow(QWidget):
         self.right_widget = QWidget()
         self.right_widget.setLayout(self.right_layout)
 
-        second = 30
+        # second = 0
         # self.count = second * 10
-        self.count = second
+        self.count = 0
         self.start = False
         font_timer = QFont()
         font_timer.setPointSize (14)
@@ -276,9 +277,22 @@ class TestWindow(QWidget):
         font.setBold (False)
         font.setWeight (50)
         self.text_stage.setPlainText(s)
+        if s == "\tNon-Seizure":
+            self.count = 30
+            self.start = False
+            text = "00:" + str(self.count) + " s"
+            self.label.setText(text)
+        self.text_stage.setFont(font)
+
         if s == "\tSeizure-onset":
             self.start = True
         self.text_stage.setFont(font)
+
+        if s == "\t   Seizure":
+            self.start = False
+            self.label.setText(" Seizure !!!! ")
+        self.text_stage.setFont(font)
+        
 
     def process_finished(self):
         self.p = None
@@ -286,15 +300,19 @@ class TestWindow(QWidget):
     def showTime(self):
         if self.start:
             self.count -= 1
+            time.sleep(1)
+
+        if self.start:
+            text = "00:" + str(self.count) + " s"
+            self.label.setText(text)
+        
+        if self.count < 10:
+            text = "00:" + "0" + str(self.count) + " s"
+            self.label.setText(text)
   
         if self.count == 0:
             self.start = False
-            self.label.setText(" Seizure !!!! ")
-  
-        if self.start:
-            # text = str(self.count / 10) + " s"
-            text = "00:" + str(self.count) + " s"
-            self.label.setText(text)
+            self.count = 30
     
 class Realtime_page(QMainWindow):
     def __init__(self, parent=None):
@@ -363,8 +381,8 @@ class RealtimeWindow(QWidget):
         self.right_widget = QWidget()
         self.right_widget.setLayout(self.right_layout)
 
-        second = 30
-        self.count = second * 10
+        self.count = 0
+        # self.count = second * 10
         self.start = False
         font_timer = QFont()
         font_timer.setPointSize (14)
@@ -447,8 +465,20 @@ class RealtimeWindow(QWidget):
         font.setBold (False)
         font.setWeight (50)
         self.text_stage.setPlainText(s)
+
+        if s == "\tNon-Seizure":
+            self.count = 30
+            text = str(self.count / 10) + " s"
+            self.label.setText(text)
+        self.text_stage.setFont(font)
+
         if s == "\tSeizure-onset":
             self.start = True
+        self.text_stage.setFont(font)
+
+        if s == "\t   Seizure":
+            self.start = False
+            self.label.setText(" Seizure !!!! ")
         self.text_stage.setFont(font)
 
     def process_finished(self):
@@ -457,15 +487,11 @@ class RealtimeWindow(QWidget):
     def showTime(self):
         if self.start:
             self.count -= 1
+            time.sleep(1)
   
         if self.count == 0:
             self.start = False
-            self.label.setText(" Seizure !!!! ")
-  
-        if self.start:
-            text = str(self.count / 10) + " s"
-            self.label.setText(text)
-
+            self.count = 30
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

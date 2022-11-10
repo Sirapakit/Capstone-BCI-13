@@ -3,7 +3,7 @@ import time
 
 def flush_then_wait():
     sys.stdout.flush()
-    time.sleep(5)
+    time.sleep(30)
 
 stages = ["\tNon-Seizure", "\tSeizure-onset", "\t   Seizure"]
 

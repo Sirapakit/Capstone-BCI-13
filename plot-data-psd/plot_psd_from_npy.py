@@ -5,13 +5,7 @@ import matplotlib.pyplot as plt
 # import plotly.io as pio; pio.renderers.default = "iframe"
 from scipy import signal
 
-# path = r'../dataset/chb15/npy/data_chb15_06.npy'
-# data = np.load(path)
-# data = data[0]
-# convert array into dataframe
-# DF = pd.DataFrame(data)
-# # save the dataframe as a csv file
-# DF.to_csv("data1.csv")
+path = r'../dataset/chb15/npy/data_chb15_06.npy'
 filename = r'data15_06.csv'
 df = pd.read_csv(filename) #load the data
 df = df.set_index(df.columns[0]) #set the first column as the index

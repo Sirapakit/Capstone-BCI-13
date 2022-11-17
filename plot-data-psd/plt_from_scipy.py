@@ -9,7 +9,7 @@ raw = mne.io.read_raw_edf(myPath, verbose=False)  # can use easy path
 f8_t8_channel_info = raw.pick_channels(['F8-T8'])
 data1 = f8_t8_channel_info.get_data() 
 
-path = r'/Users/sirap/Documents/Capstone-BCI-13/json_convert_to_npy/data_chb15_06_final2.npy'
+path = r'/Users/sirap/Documents/Capstone-BCI-13/dataset/chb15/npy/data_chb15_06.npy'
 data2 = np.load(path)
 print(data2)
 # print(data)
@@ -17,7 +17,7 @@ print(data2)
 # N = 100*256
 # time = np.arange(N)
 # x = f8_t8_array[0][272*256:372*256]
-# print(x.shape)
+# print(x)
 
 # f, Pxx_den = signal.periodogram(x, fs)
 # plt.semilogy(f, Pxx_den)

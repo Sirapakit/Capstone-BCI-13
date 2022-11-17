@@ -5,8 +5,8 @@ import json
 from scipy import signal
 import os
 
-path = '/Users/sirap/Documents/Capstone-BCI-13/json_convert_to_npy/chb05'
-patient_chb = 'chb05'
+path = '/Users/sirap/Documents/Capstone-BCI-13/json_convert_to_npy/chb16'
+patient_chb = 'chb16'
 json_filename_array = os.listdir(path)
 json_filename_array.sort()
 

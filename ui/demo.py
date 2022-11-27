@@ -86,6 +86,7 @@ class Window(QMainWindow):
     def UI(self):
         self.central_widget = QStackedWidget()
         self.setCentralWidget(self.central_widget)
+        # self.central_widget.setStyleSheet("background-color: lightskyblue;")
  
         page1 = HomeWindow(self)
         page1.test_btn.clicked.connect(self.test_window)
@@ -111,19 +112,54 @@ class HomeWindow(QWidget):
     def __init__(self, parent=None):
         super(HomeWindow, self).__init__(parent)
 
+        self.logo_layout = QHBoxLayout()
+        self.logo_layout.setAlignment(Qt.AlignCenter)
+        self.logo_widget = QWidget()
+        self.logo_label = QLabel(self)
+        self.pixmap = QPixmap('C:\\Users\\ASUS\\Desktop\\testdata\\GUI\\logo.png')
+        self.logo_label.setPixmap(self.pixmap)
+        self.logo_layout.addWidget(self.logo_label)
+        self.logo_widget.setLayout(self.logo_layout) 
+        self.logo_widget.setStyleSheet("background-color: lightskyblue;")
+        self.logo_widget.resize(self.pixmap.width(), self.pixmap.height())
+
+        self.right_layout = QVBoxLayout()
+        self.right_layout.setAlignment(Qt.AlignCenter)
+        self.right_widget = QWidget()
+        font_label = QFont()
+        font_label.setPointSize(30)
+        font_label.setBold(True)
         self.label = QLabel()
         self.label.setAlignment(Qt.AlignCenter)
-        self.label.setText('WELCOME')
+        self.label.setText('WELCOME!')
+        self.label.setFont(font_label)
+        self.label.setStyleSheet("color: black;")
+        font_btn = QFont()
+        font_btn.setPointSize (14)
         self.btn_test = QPushButton('Test System')
+        self.btn_test.setFont(font_btn)
+        self.btn_test.setFixedSize(350,70)
+        self.btn_test.setStyleSheet("border-radius : 30; border : 5px solid white; background-color: black; color: white;")
         self.btn_realtime = QPushButton('Real Time Seizure Prediction')
-        self.buttons_layout = QVBoxLayout() 
-        self.buttons_layout.setAlignment(Qt.AlignCenter)
-        self.buttons_layout.addWidget(self.label)
-        self.buttons_layout.addWidget(self.btn_test)
-        self.buttons_layout.addWidget(self.btn_realtime)
+        self.btn_realtime.setFont(font_btn)
+        self.btn_realtime.setFixedSize(350,70)
+        self.btn_realtime.setStyleSheet("border-radius : 30; border : 5px solid white; background-color: black; color: white;")
+        self.right_layout.setAlignment(Qt.AlignCenter)
+        self.right_layout.addWidget(self.label)
+        self.right_layout.addWidget(self.btn_test)
+        self.right_layout.addWidget(self.btn_realtime)
+        self.right_widget.setLayout(self.right_layout)
         self.test_btn = self.btn_test   
         self.realtime_btn = self.btn_realtime      
-        self.setLayout(self.buttons_layout)
+
+        self.splitter1 = QSplitter(Qt.Vertical)
+        self.splitter1.addWidget(self.logo_widget)
+        self.splitter1.addWidget(self.right_widget)
+        self.splitter1.setStretchFactor(1, 1)
+
+        self.layout = QVBoxLayout()
+        self.layout.addWidget(self.splitter1)
+        self.setLayout(self.layout)
 
 class Test_page(QMainWindow):
     def __init__(self, parent=None):
@@ -146,6 +182,17 @@ class Test_page(QMainWindow):
 class TestWindow(QWidget):
     def __init__(self, parent=None):
         super(TestWindow, self).__init__(parent)
+
+        self.logo_layout = QHBoxLayout()
+        self.logo_layout.setAlignment(Qt.AlignCenter)
+        self.logo_widget = QWidget()
+        self.logo_label = QLabel(self)
+        self.pixmap = QPixmap('C:\\Users\\ASUS\\Desktop\\testdata\\GUI\\logo.png')
+        self.logo_label.setPixmap(self.pixmap)
+        self.logo_layout.addWidget(self.logo_label)
+        self.logo_widget.setLayout(self.logo_layout) 
+        self.logo_widget.setStyleSheet("background-color: lightskyblue;")
+        self.logo_widget.resize(self.pixmap.width(), self.pixmap.height())
    
         self.inlets: List[Inlet] = []
         print("looking for streams")
@@ -154,95 +201,84 @@ class TestWindow(QWidget):
         self.pw = pg.PlotWidget(title='LSL Plot')
         self.plt = self.pw.getPlotItem()
 
-        self.left_layout = QHBoxLayout()
+        self.left_layout = QVBoxLayout()
         self.left_layout.addWidget(self.pw)
+        self.btn_layout = QHBoxLayout()
+        self.btn_layout.setAlignment(Qt.AlignCenter)
+        font_btn = QFont()
+        font_btn.setPointSize(14)
+        font_btn.setBold(True)
+        self.btn_play = QPushButton('Play')  
+        self.btn_play.setFont(font_btn)
+        self.btn_play.setFixedSize(100,40)
+        self.btn_play.setStyleSheet("border-radius : 20; border : 2px solid lightskyblue; background-color: white; color: black;")
+        self.btn_play.clicked.connect(self.update_lsl)
+        self.btn_layout.addWidget(self.btn_play)
+        self.left_layout.addLayout(self.btn_layout)
         self.left_widget = QWidget()
         self.left_widget.setLayout(self.left_layout)
-
-        self.l_bottom_layout = QHBoxLayout()
-        self.toggle_1_label = QLabel()
-        self.toggle_1_label.setText('Test with 50Hz Filter')
-        self.toggle_2_label = QLabel()
-        self.toggle_2_label.setText('Test with 60Hz Filter')
-        self.toggle_1 = Toggle()  # default color
-        self.toggle_1.pressed.connect(self.update_lsl)
-        self.toggle_2 = AnimatedToggle(
-            checked_color="#FFB000",
-            pulse_checked_color="#44FFB000"
-        ) # orange color
-        self.l_bottom_layout.addWidget(self.toggle_1_label)
-        self.l_bottom_layout.addWidget(self.toggle_1)
-        self.l_bottom_layout.addWidget(self.toggle_2_label)
-        self.l_bottom_layout.addWidget(self.toggle_2)
-        self.l_bottom_widget = QWidget()
-        self.l_bottom_widget.setLayout(self.l_bottom_layout)
 
         font_stage = QFont()
         font_stage.setPointSize (10)
         font_stage.setBold (True)
-        font_stage.setWeight (20)
-        self.text_stage_label = QLabel()
-        self.text_stage_label.setText('Seizure Stage')
-        self.text_stage_label.setFont(font_stage)
+        font_stage.setPointSize (14)
         self.p = None
         self.text_stage = QPlainTextEdit()
+        self.text_stage.setPlainText('       Seizure Stage')
+        self.text_stage.setFont(font_stage)
+        self.text_stage.setFixedHeight(50)
         self.right_layout = QVBoxLayout()
-        self.right_layout.addWidget(self.text_stage_label)
+        self.right_layout.setAlignment(Qt.AlignCenter)
         self.right_layout.addWidget(self.text_stage)
-        self.right_widget = QWidget()
-        self.right_widget.setLayout(self.right_layout)
 
-        # second = 0
-        # self.count = second * 10
         self.count = 0
         self.start = False
         font_timer = QFont()
-        font_timer.setPointSize (14)
+        font_timer.setPointSize (20)
         font_timer.setBold (True)
-        font_timer.setWeight (20)
+        self.label_layout = QHBoxLayout()
         self.label = QLabel("//COUNTDOWN-TIMER//", self)
         self.label.setAlignment(Qt.AlignCenter)
         self.label.setFont(font_timer)
         timer = QTimer(self)
         timer.timeout.connect(self.showTime)
         timer.start(100)
+        self.label_layout.addWidget(self.label)
+        self.right_layout.addLayout(self.label_layout)
+        self.btn_back_layout = QHBoxLayout()
         self.btn_back = QPushButton('Back')
-        self.r_bottom_layout = QVBoxLayout()
-        self.r_bottom_layout.addWidget(self.label)
-        self.r_bottom_layout.addWidget(self.btn_back)
+        self.btn_back.setFont(font_btn)
+        self.btn_back.setFixedSize(200,40)
+        self.btn_back.setStyleSheet("border-radius : 20; background-color: lightskyblue; color: black;")
+        self.btn_back_layout.addWidget(self.btn_back)
+        self.right_layout.addLayout(self.btn_back_layout)
         self.back_btn = self.btn_back
-        self.r_bottom_widget = QWidget()
-        self.r_bottom_widget.setLayout(self.r_bottom_layout)
+        self.right_widget = QWidget()
+        self.right_widget.setLayout(self.right_layout)
 
-        self.splitter1 = QSplitter(Qt.Vertical)
+        self.splitter1 = QSplitter(Qt.Horizontal)
         self.splitter1.addWidget(self.left_widget)
-        self.splitter1.addWidget(self.l_bottom_widget)
+        self.splitter1.addWidget(self.right_widget)
         self.splitter1.setStretchFactor(1, 1)
 
         self.splitter2 = QSplitter(Qt.Vertical)
-        self.splitter2.addWidget(self.right_widget)
-        self.splitter2.addWidget(self.r_bottom_widget)
+        self.splitter2.addWidget(self.logo_widget)
+        self.splitter2.addWidget(self.splitter1)
         self.splitter2.setStretchFactor(1, 1)
 
-        self.splitter3 = QSplitter(Qt.Horizontal)
-        self.splitter3.addWidget(self.splitter1)
-        self.splitter3.addWidget(self.splitter2)
-        self.splitter3.setStretchFactor(1, 1)
-
         self.layout = QVBoxLayout()
-        self.layout.addWidget(self.splitter3)
+        self.layout.addWidget(self.splitter2)
         self.setLayout(self.layout)
 
     def update_lsl(self):
-        if self.toggle_1.isChecked():
-            for info in self.streams:
-                if info.nominal_srate() != pylsl.IRREGULAR_RATE \
-                        and info.channel_format() != pylsl.cf_string:
-                    print('Adding data inlet: ' + info.name())
-                    self.inlets.append(DataInlet(info, self.plt))
-            mintime = pylsl.local_clock() - plot_duration
-            for inlet in self.inlets:
-                inlet.pull_and_plot(mintime, self.plt)
+        for info in self.streams:
+            if info.nominal_srate() != pylsl.IRREGULAR_RATE \
+                    and info.channel_format() != pylsl.cf_string:
+                print('Adding data inlet: ' + info.name())
+                self.inlets.append(DataInlet(info, self.plt))
+        mintime = pylsl.local_clock() - plot_duration
+        for inlet in self.inlets:
+            inlet.pull_and_plot(mintime, self.plt)
                 
         # create a timer that will move the view every update_interval ms
         self.update_timer = QtCore.QTimer()
@@ -273,22 +309,22 @@ class TestWindow(QWidget):
 
     def message(self, s):
         font = QFont ()
-        font.setPointSize (14)
-        font.setBold (False)
-        font.setWeight (50)
+        font.setPointSize(14)
+        font.setBold(True)
         self.text_stage.setPlainText(s)
-        if s == "\tNon-Seizure":
+        self.text_stage.setFont(font)
+        if s == "       Non-Seizure":
             self.count = 30
             self.start = False
             text = "00:" + str(self.count) + " s"
             self.label.setText(text)
         self.text_stage.setFont(font)
 
-        if s == "\tSeizure-onset":
+        if s == "       Seizure-onset":
             self.start = True
         self.text_stage.setFont(font)
 
-        if s == "\t   Seizure":
+        if s == "\tSeizure":
             self.start = False
             self.label.setText(" Seizure !!!! ")
         self.text_stage.setFont(font)
@@ -300,7 +336,7 @@ class TestWindow(QWidget):
     def showTime(self):
         if self.start:
             self.count -= 1
-            time.sleep(1)
+            time.sleep(0.4)
 
         if self.start:
             text = "00:" + str(self.count) + " s"
@@ -336,6 +372,17 @@ class RealtimeWindow(QWidget):
     def __init__(self, parent=None):
         super(RealtimeWindow, self).__init__(parent)
    
+        self.logo_layout = QHBoxLayout()
+        self.logo_layout.setAlignment(Qt.AlignCenter)
+        self.logo_widget = QWidget()
+        self.logo_label = QLabel(self)
+        self.pixmap = QPixmap('C:\\Users\\ASUS\\Desktop\\testdata\\GUI\\logo.png')
+        self.logo_label.setPixmap(self.pixmap)
+        self.logo_layout.addWidget(self.logo_label)
+        self.logo_widget.setLayout(self.logo_layout) 
+        self.logo_widget.setStyleSheet("background-color: lightskyblue;")
+        self.logo_widget.resize(self.pixmap.width(), self.pixmap.height())
+   
         self.inlets: List[Inlet] = []
         print("looking for streams")
         self.streams = pylsl.resolve_streams()
@@ -343,95 +390,85 @@ class RealtimeWindow(QWidget):
         self.pw = pg.PlotWidget(title='LSL Plot')
         self.plt = self.pw.getPlotItem()
 
-        self.left_layout = QHBoxLayout()
+        self.left_layout = QVBoxLayout()
         self.left_layout.addWidget(self.pw)
+        self.btn_layout = QHBoxLayout()
+        self.btn_layout.setAlignment(Qt.AlignCenter)
+        font_btn = QFont()
+        font_btn.setPointSize(14)
+        font_btn.setBold(True)
+        self.btn_play = QPushButton('Play')  
+        self.btn_play.setFont(font_btn)
+        self.btn_play.setFixedSize(100,40)
+        self.btn_play.setStyleSheet("border-radius : 20; border : 2px solid lightskyblue; background-color: white; color: black;")
+        self.btn_play.clicked.connect(self.update_lsl)
+        self.btn_layout.addWidget(self.btn_play)
+        self.left_layout.addLayout(self.btn_layout)
         self.left_widget = QWidget()
         self.left_widget.setLayout(self.left_layout)
-
-        self.l_bottom_layout = QHBoxLayout()
-        self.toggle_1_label = QLabel()
-        self.toggle_1_label.setText('Test with 50Hz Filter')
-        self.toggle_2_label = QLabel()
-        self.toggle_2_label.setText('Test with 60Hz Filter')
-        self.toggle_1 = Toggle()  # default color
-        self.toggle_1.pressed.connect(self.update_lsl)
-        self.toggle_2 = AnimatedToggle(
-            checked_color="#FFB000",
-            pulse_checked_color="#44FFB000"
-        ) # orange color
-        self.l_bottom_layout.addWidget(self.toggle_1_label)
-        self.l_bottom_layout.addWidget(self.toggle_1)
-        self.l_bottom_layout.addWidget(self.toggle_2_label)
-        self.l_bottom_layout.addWidget(self.toggle_2)
-        self.l_bottom_widget = QWidget()
-        self.l_bottom_widget.setLayout(self.l_bottom_layout)
 
         font_stage = QFont()
         font_stage.setPointSize (10)
         font_stage.setBold (True)
-        font_stage.setWeight (20)
-        self.text_stage_label = QLabel()
-        self.text_stage_label.setText('Seizure Stage')
-        self.text_stage_label.setFont(font_stage)
+        font_stage.setPointSize (14)
         self.p = None
         self.text_stage = QPlainTextEdit()
+        self.text_stage.setPlainText('       Seizure Stage')
+        self.text_stage.setFont(font_stage)
+        self.text_stage.setFixedHeight(50)
         self.right_layout = QVBoxLayout()
-        self.right_layout.addWidget(self.text_stage_label)
+        self.right_layout.setAlignment(Qt.AlignCenter)
         self.right_layout.addWidget(self.text_stage)
-        self.right_widget = QWidget()
-        self.right_widget.setLayout(self.right_layout)
 
         self.count = 0
-        # self.count = second * 10
         self.start = False
         font_timer = QFont()
-        font_timer.setPointSize (14)
+        font_timer.setPointSize (20)
         font_timer.setBold (True)
-        font_timer.setWeight (20)
+        self.label_layout = QHBoxLayout()
         self.label = QLabel("//COUNTDOWN-TIMER//", self)
         self.label.setAlignment(Qt.AlignCenter)
         self.label.setFont(font_timer)
-        self.btn_back = QPushButton('Back')
         timer = QTimer(self)
         timer.timeout.connect(self.showTime)
         timer.start(100)
-        self.r_bottom_layout = QVBoxLayout()
-        self.r_bottom_layout.addWidget(self.label)
-        self.r_bottom_layout.addWidget(self.btn_back)
+        self.label_layout.addWidget(self.label)
+        self.right_layout.addLayout(self.label_layout)
+        self.btn_back_layout = QHBoxLayout()
+        self.btn_back = QPushButton('Back')
+        self.btn_back.setFont(font_btn)
+        self.btn_back.setFixedSize(200,40)
+        self.btn_back.setStyleSheet("border-radius : 20; background-color: lightskyblue; color: black;")
+        self.btn_back_layout.addWidget(self.btn_back)
+        self.right_layout.addLayout(self.btn_back_layout)
         self.back_btn = self.btn_back
-        self.r_bottom_widget = QWidget()
-        self.r_bottom_widget.setLayout(self.r_bottom_layout)
+        self.right_widget = QWidget()
+        self.right_widget.setLayout(self.right_layout)
 
-
-        self.splitter1 = QSplitter(Qt.Vertical)
+        self.splitter1 = QSplitter(Qt.Horizontal)
         self.splitter1.addWidget(self.left_widget)
-        self.splitter1.addWidget(self.l_bottom_widget)
+        self.splitter1.addWidget(self.right_widget)
         self.splitter1.setStretchFactor(1, 1)
 
         self.splitter2 = QSplitter(Qt.Vertical)
-        self.splitter2.addWidget(self.right_widget)
-        self.splitter2.addWidget(self.r_bottom_widget)
+        self.splitter2.addWidget(self.logo_widget)
+        self.splitter2.addWidget(self.splitter1)
         self.splitter2.setStretchFactor(1, 1)
 
-        self.splitter3 = QSplitter(Qt.Horizontal)
-        self.splitter3.addWidget(self.splitter1)
-        self.splitter3.addWidget(self.splitter2)
-        self.splitter3.setStretchFactor(1, 1)
-
         self.layout = QVBoxLayout()
-        self.layout.addWidget(self.splitter3)
+        self.layout.addWidget(self.splitter2)
         self.setLayout(self.layout)
-    
+
     def update_lsl(self):
-        if self.toggle_1.isChecked():
-            for info in self.streams:
-                if info.nominal_srate() != pylsl.IRREGULAR_RATE \
-                        and info.channel_format() != pylsl.cf_string:
-                    print('Adding data inlet: ' + info.name())
-                    self.inlets.append(DataInlet(info, self.plt))
-            mintime = pylsl.local_clock() - plot_duration
-            for inlet in self.inlets:
-                inlet.pull_and_plot(mintime, self.plt)
+        for info in self.streams:
+            if info.nominal_srate() != pylsl.IRREGULAR_RATE \
+                    and info.channel_format() != pylsl.cf_string:
+                print('Adding data inlet: ' + info.name())
+                self.inlets.append(DataInlet(info, self.plt))
+        mintime = pylsl.local_clock() - plot_duration
+        for inlet in self.inlets:
+            inlet.pull_and_plot(mintime, self.plt)
+                
         # create a timer that will move the view every update_interval ms
         self.update_timer = QtCore.QTimer()
         self.update_timer.timeout.connect(self.scroll)
@@ -461,25 +498,26 @@ class RealtimeWindow(QWidget):
 
     def message(self, s):
         font = QFont ()
-        font.setPointSize (14)
-        font.setBold (False)
-        font.setWeight (50)
+        font.setPointSize(14)
+        font.setBold(True)
         self.text_stage.setPlainText(s)
-
-        if s == "\tNon-Seizure":
+        self.text_stage.setFont(font)
+        if s == "       Non-Seizure":
             self.count = 30
-            text = str(self.count / 10) + " s"
+            self.start = False
+            text = "00:" + str(self.count) + " s"
             self.label.setText(text)
         self.text_stage.setFont(font)
 
-        if s == "\tSeizure-onset":
+        if s == "       Seizure-onset":
             self.start = True
         self.text_stage.setFont(font)
 
-        if s == "\t   Seizure":
+        if s == "\tSeizure":
             self.start = False
             self.label.setText(" Seizure !!!! ")
         self.text_stage.setFont(font)
+        
 
     def process_finished(self):
         self.p = None
@@ -487,12 +525,20 @@ class RealtimeWindow(QWidget):
     def showTime(self):
         if self.start:
             self.count -= 1
-            time.sleep(1)
+            time.sleep(0.4)
+
+        if self.start:
+            text = "00:" + str(self.count) + " s"
+            self.label.setText(text)
+        
+        if self.count < 10:
+            text = "00:" + "0" + str(self.count) + " s"
+            self.label.setText(text)
   
         if self.count == 0:
             self.start = False
             self.count = 30
-
+            
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     win = Window()

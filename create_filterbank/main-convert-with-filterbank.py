@@ -3,10 +3,11 @@ import mne.viz
 import numpy as np
 import json
 from scipy import signal
+from scipy.stats import mode
 import os
 
-path = '../json_convert_to_npy/chb02'
-patient_chb = 'chb02'
+path = '../json_convert_to_npy/chb24'
+patient_chb = 'chb24'
 json_filename_array = os.listdir(path)
 json_filename_array.sort()
 
@@ -104,15 +105,35 @@ for index, json_filename in enumerate(json_filename_array):
         data_array[15][:] = signal.filtfilt(filter_band_8, 1, F8_T8_channel)
 
         data_array[16][:] = seizure_event_channel 
-
+        
+        band, chn = 8, 2 
+        energy_array = np.zeros((17, int(array_length/(sampling_rate*2))))
+        for feat in range(band * chn + 1): 
+            start, end = 0, 512
+            count = 0
+            if (feat != band * chn):
+                while (end <= array_length):
+                    new_sub_array = np.zeros((1, 512))
+                    new_sub_array = data_array[feat][:][start: end]
+                    energy_one_band = np.sum(np.power(new_sub_array, 2))
+                    energy_array[feat][count] = energy_one_band
+                    start, end = end, end + 512
+                    count += 1
+            else : 
+                while (end <= array_length):
+                    energy_array[feat][count] = mode(data_array[feat][:][start: end], axis=None)[0][0] 
+                    start, end = end, end + 512
+                    count += 1
+        
         for i in range(16):
-            data_array[0] = (data_array[0]-np.min(data_array[0]))/(np.max(data_array[0])-np.min(data_array[0]))
+            energy_array[i] = (energy_array[i]-np.min(energy_array[i]))/(np.max(energy_array[i])-np.min(energy_array[i]))
 
-        data = data_array
-        save_path = '../dataset/' + patient_chb + '/filterbank-npy'
-        filename = 'data_' + f['raw_name'].split('.')[0] + '_8bands'
+
+        data = energy_array
+        save_path = './energy_bands/' + patient_chb
+        filename = 'data_' + f['raw_name'].split('.')[0] + '_energy'
         np.save(os.path.join( save_path, filename ), data)
-    
+
     else:
         print(f'-------------  {json_filename} is not an edf file  -------------')
         continue

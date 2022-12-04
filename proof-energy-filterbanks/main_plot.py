@@ -18,18 +18,39 @@ dash_line = { 'first': 665, 'second': 1001, 'third': 1007}
 xlim = {'start': 600, 'stop': 1100}
 
 for i in range(1, 17):
-    plt.figure(i)
+    # plt.figure(i)
+    # if i > 4:           # Fixing 
+    # plt.figure(k)
+    # k = i % 4           # Fixing 
 
-    # if i > 4:                 # Fixing 
-    #     k = i % 4             # Fixing 
-    #     plt.subplot(4,1,k)    # Fixing 
+    if i >= 1 and i <= 4:
+        j = 1
+        k = i - 4*0
+        plt.figure(j)
+    
+    if i >= 5 and i <= 8:
+        j = 2
+        k = i - 4*1
+        plt.figure(j)
+
+    if i >= 9 and i <= 12:
+        j = 3
+        k = i - 4*2
+        plt.figure(j)
+
+    if i >= 13 and i <= 16:
+        j = 4
+        k = i - 4*3
+        plt.figure(j)
+
+    plt.subplot(4,1,k)    
 
     energy_band = data[i - 1]
     plt.tight_layout(h_pad=2)
     plt.grid()
 
     # Config the graphing and dashlined
-    plt.xlim([(xlim['start']/2 - 100) , (xlim['stop']/2 + 100) ])
+    plt.xlim([(xlim['start']/2) , (xlim['stop']/2) ])
 
     # Dash line for seizure
     plt.vlines(seizure_info['start']/2 - 30/2, 0, 1, color='green' ,linestyle="dashed")
@@ -43,6 +64,7 @@ for i in range(1, 17):
 
     plt.title(f'Band {i}')
     plt.plot(energy_band, color='b')
+
 plt.show()
 
 # plt.subplot(4,1,2)

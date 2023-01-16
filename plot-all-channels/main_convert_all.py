@@ -2,14 +2,16 @@ import mne
 import mne.viz
 import numpy as np
 import json
-from scipy import signal
-import os
+
 
 print('--------Start--------')
-data = open('./info_chb01_03.json')
+patient_chb = 'chb24'
+json_filename = 'info_' + patient_chb + '_21.json'
+data = open('../json_convert_to_npy' + '/' + patient_chb + '/' + json_filename)
 f = json.load(data)
 
-data_file = r'/Users/sirap/Documents/Capstone-BCI-13/plot-all-channels/chb01_03.edf'
+print('test')
+data_file = '../dataset/chb24/chb24_21.edf'
 raw = mne.io.read_raw(data_file)
 print(raw)
 print("Hello")

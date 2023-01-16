@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 {
     "patient_ID":"chb10",
     "raw_name": "chb10_89.edf",
@@ -12,19 +11,4 @@
         "end": [1437]
     },
     "number_of_seizure": 1
-=======
-{
-    "patient_ID":"chb10",
-    "raw_name": "chb10_89.edf",
-    "channels": {
-        "number": 23,
-        "Fp2_F8": 13,
-        "F8_T8": 14
-    },
-    "time_stamp" : {
-        "start": [1383],
-        "end": [1437]
-    },
-    "number_of_seizure": 1
->>>>>>> main
 }

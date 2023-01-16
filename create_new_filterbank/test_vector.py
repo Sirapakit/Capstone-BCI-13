@@ -1,11 +1,11 @@
 import numpy as np
 from scipy.stats import mode
 
-path = r'/Users/sirap/Documents/Capstone-BCI-13/create_new_filterbank/new_energy_bands/chb01/data_chb01_03_energy_v2.npy' 
-data = np.load(path)
+# path = r'/Users/sirap/Documents/Capstone-BCI-13/create_new_filterbank/new_energy_bands/chb01/data_chb01_03_energy_v2.npy' 
+# data = np.load(path)
 
-data_first_feat = data
-print(data_first_feat.shape)
+# data_first_feat = data
+# print(data_first_feat.shape)
 # print(data_first_feat[0 : 512][:])
 # need to calculate energy from 512 sample first then sub_energy_array[0][:] = energy_from [0:512]
 # cant pass numpy array in function argument
@@ -39,4 +39,16 @@ print(data_first_feat.shape)
 # print(f'Event 1 is {np.count_nonzero(energy_array[-1]==1)}')
 # print(f'Event 2 is {np.count_nonzero(energy_array[-1]==2)}')
 
+
+json_array = [ 'chb1', 'chb2', 'chb3']
+filename = 'chb1'
+if filename in json_array:
+    print("TRUE")
+else :
+    print("FLASE")
+
+if filename == json_array[0]:
+    print("TRUE  TRUE   TRUE  TRUE")
+else :
+    print("FLASE FLASE FLASE FLASE")
 

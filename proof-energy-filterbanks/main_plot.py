@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-path = r'/Users/sirap/Documents/Capstone-BCI-13/create_new_filterbank/new_energy_bands/chb01/data_chb01_16_energy_v2.npy'
+path = r'/Users/sirap/Documents/Capstone-BCI-13/create_new_filterbank/new_energy_bands/chb04/data_chb04_08_energy_v2.npy'
 data = np.load(path)
 print(f'Shape is {data.shape}')
 print(f'Should be 1: {max(data[15])}')
@@ -9,23 +9,19 @@ print(f'Should be 0: {min(data[15])}')
 
 sampling_rate = 256
 
-seizure_info = {'start':1015, 'stop': 1066}
+seizure_info = {'start': 3782, 'stop': 3898}
 # Green = Onset start
 # Red = Seizure period
 
 dash_line = { 'first': 665, 'second': 1001, 'third': 1007}
 
-xlim = {'start': 600, 'stop': 1100}
+xlim = {'start': 3782 -200, 'stop': 3898+ 100}
 
 for i in range(1, 17):
-    # plt.figure(i)
-    # if i > 4:           # Fixing 
-    # plt.figure(k)
-    # k = i % 4           # Fixing 
 
     if i >= 1 and i <= 4:
         j = 1
-        k = i - 4*0
+        k = i
         plt.figure(j)
     
     if i >= 5 and i <= 8:
@@ -66,6 +62,8 @@ for i in range(1, 17):
     plt.plot(energy_band, color='b')
 
 plt.show()
+
+print(f'Difference: {data[0][1000 : 1010] - data[1][1000 : 1010]}')
 
 # plt.subplot(4,1,2)
 # x2 = data[1]

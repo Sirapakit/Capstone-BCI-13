@@ -1,8 +1,6 @@
 import numpy as np
-import math
 import pylsl
 import pyqtgraph as pg
-from pyqtgraph.Qt import QtCore, QtGui, QtWidgets
 from typing import List
 from pylsl import StreamInlet, resolve_stream
 # from joblib import load
@@ -20,16 +18,25 @@ def main():
 
     # create a new inlet to read from the stream
     inlet = StreamInlet(streams[0])
+    info = pylsl.StreamInfo()
+    streams = pylsl.resolve_streams()
 
-    while True:
+    sample_Fp2_F8 = []
+    sample_F8_T8 = []
+    count = 0
+    while count < 10: 
         # get a new sample (you can also omit the timestamp part if you're not
         # interested in it)
         sample, timestamp = inlet.pull_sample()
-        sample_filter = filter(sample)
-        print(f'sample:{sample}')
-        print(f'signal:{sample_filter}')
+        for info in streams:
+            if info.name() == 'Fp2-F8':
+                sample_Fp2_F8.append(sample[0])
+            if info.name() == 'F8-T8':
+                sample_F8_T8.append(sample[0])
+        count += 1
         # print(timestamp, sample)
-
+    print(f'Fp2-F8: {sample_Fp2_F8}')
+    print(f'F8-T8: {sample_F8_T8}')
 if __name__ == '__main__':
     main()
 

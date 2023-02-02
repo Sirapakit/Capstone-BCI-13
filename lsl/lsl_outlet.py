@@ -11,7 +11,8 @@ from numpy import loadtxt
 # file = "chb01_26.edf"
 # data = mne.io.read_raw_edf(file)
 # test = np.load('data_ten.npy').tolist()
-test = np.load('C:\\Users\\ASUS\\Desktop\\testdata\\GUI\\data_15.npy')
+path = '../concat-files-plot/chb05-2chn.npy'
+test = np.load(path)
 # test10 = test * 10
 test_T = np.transpose(test)
 test_L = test_T.tolist()

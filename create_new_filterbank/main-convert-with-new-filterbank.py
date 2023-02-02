@@ -120,7 +120,8 @@ for index, json_filename in enumerate(json_filename_array):
                 data_array[16][:] = seizure_event_channel 
                 
                 band, chn = 8, 2 
-                energy_array = np.zeros((17, int(array_length/(sampling_rate*2))))
+                shifted_sec = 2
+                energy_array = np.zeros((17, int(array_length/(sampling_rate*shifted_sec))))
                 for feat in range(band * chn + 1): 
                     start, end = 0, 512
                     count = 0

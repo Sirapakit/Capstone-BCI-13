@@ -1,6 +1,6 @@
 {
-    "patient_ID":"chb15",
-    "raw_name": "chb15_01.edf",
+    "patient_ID":"chb09",
+    "raw_name": "chb09_01.edf",
     "channels": {
         "number": 23,
         "Fp2_F8": 13,

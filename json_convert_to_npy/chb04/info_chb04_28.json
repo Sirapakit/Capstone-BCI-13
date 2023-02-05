@@ -4,7 +4,8 @@
     "channels": {
         "number": 24,
         "Fp2_F8": 13,
-        "F8_T8": 14
+        "F8_T8": 14,
+        "ecg": 24
     },
     "time_stamp" : {
         "start": [1679, 3782],

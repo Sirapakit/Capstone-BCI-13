@@ -7,8 +7,8 @@
         "F8_T8": 20
     },
     "time_stamp" : {
-        "start": [],
-        "end": []
+        "start": [0],
+        "end": [0]
     },
     "number_of_seizure": 0
 }

@@ -6,9 +6,12 @@ import numpy as np
 from numpy import loadtxt
 
 
+
 database = np.load('C:\\Users\\ASUS\\Desktop\\testdata\\GUI\\chb05-2chn.npy')
 database_list = database.tolist()
 all_channel_name = 2
+
+
 
 def main(argv):
     srate = 256
@@ -37,6 +40,7 @@ def main(argv):
 
     info_Fp2_F8 = StreamInfo(name_Fp2_F8, type, n_channels, srate, 'float32', 'myuid34234')
     info_F8_T8 = StreamInfo(name_F8_T8, type, n_channels, srate, 'float32', 'myuid34234')
+
     # # next make an outlet
     outlet_Fp2_F8 = StreamOutlet(info_Fp2_F8)
     outlet_F8_T8 = StreamOutlet(info_F8_T8)
@@ -50,15 +54,19 @@ def main(argv):
         required_samples = int(srate * elapsed_time) - sent_samples
         for sample_ix in range(required_samples):
             mysample =  [database_list[sent_samples][i] for i in range(all_channel_name)]
+            # print(mysample)
 
             mysample_Fp2_F8_list = [float(mysample[0])]
             mysample_F8_T8_list = [float(mysample[1])]
+            # mysample_Fp2_F8_list = [0]
+            # mysample_F8_T8_list = [1]
 
             # print(f'mysample[0]: {mysample_Fp2_F8_list}')
             # print(f'mysample[1]: {mysample_F8_T8_list}')
 
             outlet_Fp2_F8.push_sample(mysample_Fp2_F8_list)
             outlet_F8_T8.push_sample(mysample_F8_T8_list)
+            
         sent_samples += required_samples
         time.sleep(0.0004)
 

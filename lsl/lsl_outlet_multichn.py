@@ -5,13 +5,9 @@ from pylsl import StreamInfo, StreamOutlet, local_clock
 import numpy as np
 from numpy import loadtxt
 
-
-
 database = np.load('C:\\Users\\ASUS\\Desktop\\testdata\\GUI\\chb05-2chn.npy')
 database_list = database.tolist()
 all_channel_name = 2
-
-
 
 def main(argv):
     srate = 256
@@ -66,7 +62,7 @@ def main(argv):
 
             outlet_Fp2_F8.push_sample(mysample_Fp2_F8_list)
             outlet_F8_T8.push_sample(mysample_F8_T8_list)
-            
+
         sent_samples += required_samples
         time.sleep(0.0004)
 

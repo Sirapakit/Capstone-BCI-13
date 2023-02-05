@@ -1,6 +1,7 @@
 import numpy as np
 import time
 import math
+
 import pylsl
 import pyqtgraph as pg
 from typing import List
@@ -30,6 +31,7 @@ def main():
     sample_Fp2_F8 = []
     sample_F8_T8 = []
     count = 0
+
     while count<10: 
         # get a new sample (you can also omit the timestamp part if you're not
         # interested in it)
@@ -44,6 +46,7 @@ def main():
         count += 1
     print(f'sample0: {sample_Fp2_F8}')
     print(f'sample1: {sample_F8_T8}')
+
 if __name__ == '__main__':
     main()
 

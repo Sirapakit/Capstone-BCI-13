@@ -7,14 +7,15 @@ from scipy.stats import mode
 import os
 
 # Change Path for each patient
-path = '../json_convert_to_npy/chb05'
-patient_chb = 'chb05'
+path = '../json_convert_to_npy/chb17'
+patient_chb = 'chb17'
 json_filename_array = os.listdir(path)
 json_filename_array.sort()
 sampling_rate = 256
 
 # Get chn first
-ch_names = ['FP1-F7', 'F7-T7', 'T7-P7', 'P7-O1', 'FP1-F3', 'F3-C3', 'C3-P3', 'P3-O1', 'FP2-F4', 'F4-C4', 'C4-P4', 'P4-O2', 'FP2-F8', 'F8-T8', 'T8-P8-0', 'P8-O2', 'FZ-CZ', 'CZ-PZ', 'P7-T7', 'T7-FT9', 'FT9-FT10', 'FT10-T8', 'T8-P8-1']
+ch_names = ['FP1-F7', 'F7-T7', 'T7-P7', 'P7-O1', '--0', 'FP1-F3', 'F3-C3', 'C3-P3', 'P3-O1', '--1', 'FZ-CZ', 'CZ-PZ', '--2', 'FP2-F4', 'F4-C4', 'C4-P4', 'P4-O2', '--3', 'FP2-F8', 'F8-T8', 'T8-P8-0', 'P8-O2', '--4', 'P7-T7', 'T7-FT9', 'FT9-FT10', 'FT10-T8', 'T8-P8-1']
+# ch_names = ['FP1-F7', 'F7-T7', 'T7-P7', 'P7-O1', 'FP1-F3', 'F3-C3', 'C3-P3', 'P3-O1', 'FP2-F4', 'F4-C4', 'C4-P4', 'P4-O2', 'FP2-F8', 'F8-T8', 'T8-P8-0', 'P8-O2', 'FZ-CZ', 'CZ-PZ', 'P7-T7', 'T7-FT9', 'FT9-FT10', 'FT10-T8', 'T8-P8-1']
 print(f'Channels name are {ch_names}')
 print(f'There are {len(ch_names)} channels')
 print(f'First channel is {ch_names[0]}')
@@ -63,6 +64,9 @@ for index, json_filename in enumerate(json_filename_array):
         if (json_filename.endswith('.json')):
             data_file = path_dataset + '/' + f['raw_name']
             if (edf_name_from_json == edf_filename):
+                ## Exclude last filename
+                if ( edf_filename == 'chb17c_13.edf'):
+                    break
                 raw = mne.io.read_raw(data_file) # raw = raw format
                 raw_array = raw.get_data() # raw_array = ndarray format
                 print(raw_array[0].shape)
@@ -99,12 +103,12 @@ print(f'The main_all_concat variable dimension is {main_all_concat}')
 
 #-----------------------------------------------------------------------------------------------------------#
 # chb05
-seizure_start_info = np.array([18427, 44296, 56327, 60061, 77958]) * sampling_rate
-seizure_stop_info  = np.array([18542, 44406, 56423, 60181, 78075]) * sampling_rate
+# seizure_start_info = np.array([18427, 44296, 56327, 60061, 77958]) * sampling_rate
+# seizure_stop_info  = np.array([18542, 44406, 56423, 60181, 78075]) * sampling_rate
 
 # chb17
-# seizure_start_info = np.array([2282, 6625, 35536]) * sampling_rate
-# seizure_stop_info  = np.array([2372, 6740, 35624]) * sampling_rate
+seizure_start_info = np.array([2282, 6625, 35536]) * sampling_rate
+seizure_stop_info  = np.array([2372, 6740, 35624]) * sampling_rate
 
 # # chb06 
 # seizure_start_info = np.array([1724, 21888, 42352, 43554, 49438, 126588, 139321, 157794, 225717, 235233]) * sampling_rate
@@ -120,18 +124,18 @@ main_event_only = np.array([])
 # 2 Cases ( 1. Enough gap ( > 3hrs ) 2. Not Enough ( 1. < 1 hr  2. < 3 hrs ( same code ))) #
 
 # Seizure 0 ( Special, Most Easy )  ( More )
-seizure_period_0 = main_all_concat[:, seizure_start_info[0] - 10800 * sampling_rate: seizure_stop_info[0]]
+seizure_period_0 = main_all_concat[:, : seizure_stop_info[0]]
 event_period_0   = np.zeros([1, seizure_period_0.shape[1]])
-event_period_0[0][7200 * sampling_rate: 10800 * sampling_rate] = 1
-event_period_0[0][10800 * sampling_rate:] = 2
+event_period_0[0][: -(90 * sampling_rate + 1)] = 1
+event_period_0[0][-(90 * sampling_rate + 1):] = 2
 print(f'{(seizure_period_0.shape)} = {(event_period_0.shape)}')
 print(f'Count 2 in event_period_0: {np.count_nonzero(event_period_0==2)}')
 
-# Seizure 1 ( More )
-seizure_period_1 = main_all_concat[:, seizure_start_info[1] - 10800 * sampling_rate: seizure_stop_info[1]]
+# Seizure 1 ( Less ) ***
+seizure_period_1 = main_all_concat[:, seizure_stop_info[0]: seizure_stop_info[1]]
 event_period_1   = np.zeros([1, seizure_period_1.shape[1]])
-event_period_1[0][7200 * sampling_rate: 10800 * sampling_rate] = 1
-event_period_1[0][10800 * sampling_rate:] = 2
+event_period_1[0][: -(115 * sampling_rate + 1)] = 1
+event_period_1[0][-(115 * sampling_rate + 1):] = 2
 print(f'Count 2 in event_period_1: {np.count_nonzero(event_period_1==2)}')
 
 # Seizure 2 ( More )
@@ -142,23 +146,16 @@ event_period_2[0][10800 * sampling_rate:] = 2
 print(f'Count 2 in event_period_2: {np.count_nonzero(event_period_2==2)}')
 
 # Seizure 3 ( Less ) ***
-seizure_period_3 = main_all_concat[:, seizure_stop_info[2]: seizure_stop_info[3]]
-event_period_3   = np.zeros([1, seizure_period_3.shape[1]])
-event_period_3[0][: -(120 * sampling_rate + 1)] = 1
-event_period_3[0][-(120 * sampling_rate):] = 2
-print(f'Count 2 in event_period_3: {np.count_nonzero(event_period_3==2)}')
-
-# Seizure 4 ( More )
-seizure_period_4 = main_all_concat[:, seizure_start_info[3] - 10800 * sampling_rate: seizure_stop_info[3]]
-event_period_4   = np.zeros([1, seizure_period_4.shape[1]])
-event_period_4[0][7200 * sampling_rate: 10800 * sampling_rate] = 1
-event_period_4[0][10800 * sampling_rate:] = 2
-print(f'Count 2 in event_period_4: {np.count_nonzero(event_period_4==2)}')
+# seizure_period_3 = main_all_concat[:, seizure_stop_info[2]: seizure_stop_info[3]]
+# event_period_3   = np.zeros([1, seizure_period_3.shape[1]])
+# event_period_3[0][: -(120 * sampling_rate + 1)] = 1
+# event_period_3[0][-(120 * sampling_rate):] = 2
+# print(f'Count 2 in event_period_3: {np.count_nonzero(event_period_3==2)}')
 
 #-------------------------------------------------------------------------------------------------------------#
 # Stack seizure with event
-main_seizure_only = np.hstack((seizure_period_0, seizure_period_1, seizure_period_2, seizure_period_3, seizure_period_4))
-main_event_only  = np.hstack((event_period_0, event_period_1, event_period_2, event_period_3, event_period_4))
+main_seizure_only = np.hstack((seizure_period_0, seizure_period_1, seizure_period_2))
+main_event_only  = np.hstack((event_period_0, event_period_1, event_period_2))
 data_with_event = np.vstack((main_seizure_only, main_event_only))
 # Debugging line
 print(f'Count 2: {np.count_nonzero(data_with_event[-1]==2)}')
@@ -215,17 +212,30 @@ filter_band_32 = [-7.44998799154214e-06, -0.000110335038961852, 0.00019610632461
 # Create 8 bands per chn
 num_bands = 32
 # Crop to five channel
-# Done 0,1,2,3,4------
-chn_start = 0
-chn_end = 3
+# ['FP1-F7', 'F7-T7', 'T7-P7', 'P7-O1', '--0', 
+# 'FP1-F3', 'F3-C3', 'C3-P3', 'P3-O1', '--1', 
+# 'FZ-CZ', 'CZ-PZ', '--2', 
+# 'FP2-F4', 'F4-C4', 'C4-P4', 'P4-O2', '--3', 
+# 'FP2-F8', 'F8-T8', 'T8-P8-0', 'P8-O2', '--4', 
+# 'P7-T7', 'T7-FT9', 'FT9-FT10', 'FT10-T8', 'T8-P8-1']
+# Done 0,1,2,3---5,6,7,8---10,11----13,14,15,16----18,19,20,21----23,24,25,26,27
+chn_start = 18
+chn_end = 21
 data_with_event = data_with_event[chn_start: chn_end+1, :]
+delete_params = 24
 
-data_filtered_array = np.zeros(((len(ch_names) - 20 )*num_bands+1, data_with_event.shape[1]))
-# 18 because 23 - 18 = 5 chn at a time
-# 20 ==> 23 - 20 = 3
+data_filtered_array = np.zeros(((len(ch_names) - delete_params )*num_bands+1, data_with_event.shape[1]))
+# 23 ======> 28 - 23 = 5
+# 24 ======> 28 - 24 = 4
+# 26 ======> 28 - 26 = 2
+
+# 18 ======> 23 - 18 = 5 chn at a time
+# 19 ======> 23 - 19 = 4
+# 20 ======> 23 - 20 = 3
+# 21 ======> 23 - 21 = 2
 
 # for i in range(len(ch_names)):
-for i in range(0, 3):
+for i in range(0, chn_end-chn_start+1):
     data_filtered_array[i*num_bands+0][:]  = signal.filtfilt(filter_band_1, 1, data_with_event[i])
     data_filtered_array[i*num_bands+1][:]  = signal.filtfilt(filter_band_2, 1, data_with_event[i])
     data_filtered_array[i*num_bands+2][:]  = signal.filtfilt(filter_band_3, 1, data_with_event[i])
@@ -274,8 +284,11 @@ del filter_band_21, filter_band_22, filter_band_23, filter_band_24, filter_band_
 del filter_band_31, filter_band_32
 
 # Calculate Energy perband
-chn_include_event = len(ch_names) - 20
-# 18 because 23 - 18 = 5 chn at a time
+chn_include_event = len(ch_names) - delete_params
+# 18 ======> 23 - 18 = 5 
+# 19 ======> 23 - 19 = 4
+# 20 ======> 23 - 20 = 3
+# 21 ======> 23 - 21 = 2
 shifted_sec = 4
 energy_array = np.zeros((num_bands*chn_include_event+1, int(data_filtered_array.shape[1]/(sampling_rate*shifted_sec))))
 for feat in range(num_bands * chn_include_event + 1):
@@ -310,6 +323,12 @@ print(f'Count 2: {np.count_nonzero(energy_array[-1]==2)}')
 print("--------Done Calculating Energy--------")
 
 # Save file take some times
-print('-------May take long time to save, be patient---------')
-# have (737, xxxxx)
-np.save("test-energy-0-4.npy", energy_array)
+print('-------May take long time to save---------')
+
+# for i in range(64):  # for 2
+for i in range((chn_end-chn_start+1)*32):   # for 4
+# for i in range(160): # for 5
+    energy_array[i] = (energy_array[i]-np.min(energy_array[i]))/(np.max(energy_array[i])-np.min(energy_array[i]))
+
+np.save("test-energy-13-16.npy", energy_array)
+

@@ -1,4 +1,5 @@
-from joblib import dump
+# from joblib import dump
+import joblib
 from sklearn import datasets
 from sklearn.ensemble import RandomForestClassifier
 
@@ -11,6 +12,6 @@ clf = RandomForestClassifier(n_estimators=100)
 clf.fit(X, y)
 
 # Save the model to a file
-dump(clf, 'model.joblib')
+joblib.dump(clf, 'model.joblib')
 print('done')
 

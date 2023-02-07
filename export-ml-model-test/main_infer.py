@@ -1,8 +1,10 @@
-from joblib import load
+# from joblib import load
+import joblib
 from sklearn import datasets
 
 # Load the model from a file
-clf = load('model.joblib')
+clf = joblib.load('./model.joblib')
+print(clf)
 
 # Load new data
 iris = datasets.load_iris()

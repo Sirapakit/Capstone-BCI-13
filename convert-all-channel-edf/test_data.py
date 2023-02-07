@@ -18,5 +18,5 @@ import numpy as np
 # nan_indices = np.argwhere(np.isnan(data_test))
 # print(f'Row that are nan are {np.unique(nan_indices[:, 0])}')
 
-# data_test = np.load('./FB32bands/FB32-chn0-{patient_chb}.npy')
-# print(data_test.shape)
+data_test = np.load('./test-energy-13-16.npy')
+print(data_test.shape)

@@ -13,6 +13,7 @@ import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore, QtGui, QtWidgets
 from typing import List
 import time
+import demo_inlet 
 
 plot_duration = 5 # how many seconds of data to show
 update_interval = 500  # ms between screen updates
@@ -241,7 +242,7 @@ class MainWindow(QWidget):
         font_stage.setPointSize (14)
         self.p = None
         self.text_stage = QPlainTextEdit()
-        self.text_stage.setPlainText('       Seizure Stage')
+        # self.text_stage.setPlainText('       Seizure Stage')
         self.text_stage.setFont(font_stage)
         self.text_stage.setFixedHeight(50)
         self.right_layout = QVBoxLayout()
@@ -291,12 +292,12 @@ class MainWindow(QWidget):
         for info in self.streams:
             if info.nominal_srate() != pylsl.IRREGULAR_RATE \
                     and info.channel_format() != pylsl.cf_string and info.name() == 'Fp2-F8':
-                print('Adding data inlet: ' + info.name())
+                # print('Adding data inlet: ' + info.name())
                 self.inlets.append(DataInlet(info, self.plt_fp2_f8))
 
             if info.nominal_srate() != pylsl.IRREGULAR_RATE \
                     and info.channel_format() != pylsl.cf_string and info.name() == 'F8-T8':
-                print('Adding data inlet: ' + info.name())
+                # print('Adding data inlet: ' + info.name())
                 self.inlets.append(DataInlet(info, self.plt_f8_t8))
             
         mintime = pylsl.local_clock() - plot_duration
@@ -326,34 +327,35 @@ class MainWindow(QWidget):
             self.p = QProcess()
             self.p.readyReadStandardOutput.connect(self.handle_stdout)
             self.p.finished.connect(self.process_finished)
-            self.p.start("python", ['C:\\Users\\ASUS\\Desktop\\testdata\\GUI\\demo_stage.py'])
+            self.p.start("python", ['./demo_inlet.py'])
 
     def handle_stdout(self):
         data = self.p.readAllStandardOutput()
         stdout = bytes(data).decode("utf8")
         self.message(stdout)
 
-    def message(self, s):
+    def message(self,s):
         font = QFont ()
         font.setPointSize(14)
         font.setBold(True)
         self.text_stage.setPlainText(s)
         self.text_stage.setFont(font)
-        if s == "       Non-Seizure":
+        if s == '       Non-seizure':
             self.count = 30
             self.start = False
             text = "00:" + str(self.count) + " s"
             self.label.setText(text)
         self.text_stage.setFont(font)
-
-        if s == "       Seizure-Onset":
+        
+        if s == '\tPreictal':
             self.start = True
         self.text_stage.setFont(font)
-
-        if s == "\tSeizure":
+        
+        if s == '\tSeizure':
             self.start = False
             self.label.setText(" Seizure !!!! ")
         self.text_stage.setFont(font)
+
         
     def process_finished(self):
         self.p = None

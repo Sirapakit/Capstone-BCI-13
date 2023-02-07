@@ -2,6 +2,7 @@ import numpy as np
 import time
 import math
 import pylsl
+import sys
 import pyqtgraph as pg
 from typing import List
 from pylsl import StreamInlet, resolve_stream
@@ -50,7 +51,7 @@ class Test():
 
             time.sleep(0.0004)
             count += 1
-        print(f'sample0: {self.sample_Fp2_F8}')
+        # print(f'sample0: {self.sample_Fp2_F8}')
         # print(f'sample1: {self.sample_F8_T8}')
 
         return self.sample_Fp2_F8,self.sample_F8_T8
@@ -69,7 +70,7 @@ class Test():
         self.Fp2_F8_data = self.Fp2_F8_roll
         self.F8_T8_data = self.F8_T8_roll
 
-        print(self.Fp2_F8_data)
+        # print(self.Fp2_F8_data)
         # print(self.F8_T8_data)
 
     def filter_bank_8bands(self):
@@ -102,7 +103,7 @@ class Test():
         self.data_filtered_array[6][:]  = signal.filtfilt(filter_band_7, 1, data)
         self.data_filtered_array[7][:]  = signal.filtfilt(filter_band_8, 1, data)
 
-        print(self.data_filtered_array)
+        # print(self.data_filtered_array)
         return self.data_filtered_array
 
     def energy_and_norm(self):
@@ -121,7 +122,7 @@ class Test():
         for i in range(8):
             self.energy_array[i] = (self.energy_array[i]-np.min(self.energy_array))/(np.max(self.energy_array)-np.min(self.energy_array))
 
-        print(self.energy_array)
+        # print(self.energy_array)
         return self.energy_array
 
     def prediction(self):
@@ -130,17 +131,32 @@ class Test():
         #     model = pickle.load(file)
         model = load('./model.joblib')
         self.pred = model.predict(self.energy_array)
-        print(self.pred)
+        # print(self.pred[0])
+        return self.pred[0]
+
+    def result(self):
+        if self.pred[0] == 0:
+            self.message = '       Non-seizure'
+            
+        if self.pred[0] == 1:
+            self.message = '\tPreictal'
+        
+        if self.pred[0] == 2:
+           self.message = '\tSeizure'
+        
+        return sys.stdout.write(self.message)
 
 if __name__ == '__main__':
     a = Test(np.array([]),np.array([]))   # new 4 sec data each channel
-    for i in range(1):  # while True:
+    # for i in range(10):  
+    while True:
         a.main()
         a.data_slicing()
         a.filter_bank_8bands()
         a.energy_and_norm()
         a.prediction()
-
+        a.result()
+        sys.stdout.flush()
 
 
 

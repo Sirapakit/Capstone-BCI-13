@@ -12,7 +12,7 @@ json_filename_array = os.listdir(path)
 json_filename_array.sort()
 sampling_rate = 256
 
-data_file = '../dataset/chb05/chb05_01.edf'
+data_file = '../dataset/chb17/chb17a_03.edf'
 raw = mne.io.read_raw(data_file)
 raw_array = raw.get_data()
 

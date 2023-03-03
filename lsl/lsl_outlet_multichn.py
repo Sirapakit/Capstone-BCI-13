@@ -5,7 +5,7 @@ from pylsl import StreamInfo, StreamOutlet, local_clock
 import numpy as np
 from numpy import loadtxt
 
-database = np.load('D:\Thesis\In-process\chb05-2chn.npy')
+database = np.load('./chb05-2chn.npy')
 database_list = database.tolist()
 all_channel_name = 2
 

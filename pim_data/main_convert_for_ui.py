@@ -4,8 +4,8 @@ import json
 import os
 
 # Change Path for each patient
-path = '../../json_convert_to_npy/chb02'
-patient_chb = 'chb02'
+path = '../json_convert_to_npy/chb03'
+patient_chb = 'chb03'
 json_filename_array = os.listdir(path)
 json_filename_array.sort()
 sampling_rate = 256
@@ -20,7 +20,7 @@ for index, json_filename in enumerate(json_filename_array):
     print(f'Investigating JSON: {json_filename}')
 
     # Open json data
-    data = open('../../' + 'json_convert_to_npy/' + patient_chb + '/' + json_filename)
+    data = open('../' + 'json_convert_to_npy/' + patient_chb + '/' + json_filename)
     f = json.load(data)
 
     # get edf filename from json info
@@ -28,7 +28,7 @@ for index, json_filename in enumerate(json_filename_array):
     print(f'Investigating EDF: {edf_name_from_json}')
 
     # Open dataset and create array name of edf files
-    path_dataset = '../../dataset/' + f['patient_ID']
+    path_dataset = '../dataset/' + f['patient_ID']
     edf_filename_array = os.listdir(path_dataset)
     edf_filename_array.sort()
 
@@ -41,7 +41,7 @@ for index, json_filename in enumerate(json_filename_array):
     print(f'Investigating JSON: {json_filename}')
 
     # Read JSON data
-    data = open('../../' + 'json_convert_to_npy/' + patient_chb + '/' + json_filename)
+    data = open('../' + 'json_convert_to_npy/' + patient_chb + '/' + json_filename)
     f = json.load(data)
 
     # Get edf filename from json info
@@ -49,7 +49,7 @@ for index, json_filename in enumerate(json_filename_array):
     print(f'Investigating EDF: {edf_name_from_json}')
 
     # Open dataset and create array name of edf files
-    path_dataset = '../../dataset/' + f['patient_ID']
+    path_dataset = '../dataset/' + f['patient_ID']
     edf_filename_array = os.listdir(path_dataset)
     edf_filename_array.sort()
 

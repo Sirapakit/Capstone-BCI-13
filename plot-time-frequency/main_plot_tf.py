@@ -41,7 +41,6 @@ plot.title("Spectrogram")
 plot.xlabel('Time (seconds)')
 plot.ylabel('Frequency (Hz)')
 
-
 ######### Plot time freq Z Score #############
 print(f'Shape data for Spectrogram is {F8_T8_data.shape}')
 print(f'Pxx shape is {Pxx.shape}')
@@ -64,20 +63,3 @@ plot.ylabel('Frequency (Hz)')
 
 
 plot.show()   
-
-# x = np.arange(0, 10, .1)
-# y = np.arange(0, 10, .1)
-# X, Y = np.meshgrid(x,y)
-
-# def do_plot(n, title):
-#     #plt.clf()
-#     plot.subplot(1, 3, n)
-#     plot.pcolor(X, Y, F8_T8_data_zscore, cmap='seismic', vmin=-4, vmax=4)
-#     plot.title(title)
-#     plot.colorbar()
-
-# plot.figure()
-# do_plot(1 ,"all")
-# do_plot(2, "<0")
-# do_plot(3,  ">0")
-# plot.show()

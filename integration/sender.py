@@ -13,9 +13,10 @@ logging.basicConfig(level=logging.INFO)
 class sendData():
     Fp2_F8_data = np.zeros((8),dtype='float64') 
 
-    def __init__(self,sample_Fp2_F8,queue):
+    def __init__(self,sample_Fp2_F8,queue,queue2):
         self.sample_Fp2_F8 = sample_Fp2_F8
         self.queue = queue
+        self.queue2 = queue2
 
 
     def data_from_lsl(self):
@@ -50,10 +51,9 @@ class sendData():
                 self.Fp2_F8_roll[:1] = self.sample_Fp2_F8[count_for_roll]
                 self.Fp2_F8_data = self.Fp2_F8_roll
                 count_for_roll  += 1
-                print(self.Fp2_F8_data)
 
             # logging.info(f"data from roll {self.Fp2_F8_data}")
             sys.stdout.flush()
-            # self.queue.put(self.Fp2_F8_data)
+            self.queue2.put(self.Fp2_F8_data)
             logging.info(f"Sent data {self.Fp2_F8_data}")
             time.sleep(1)

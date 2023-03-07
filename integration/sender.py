@@ -8,16 +8,21 @@ from typing import List
 from pylsl import StreamInlet, resolve_stream
 import sys
 
-logging.basicConfig(level=logging.INFO)
+SAMPLING_FREQ = 256
+WINDOW_LENGTH = 8   # sec
+NUM_BANDS = 8
+OVERLAP_PERCENT = 0.5
+SHIFTED_DURATION = 4 # sec
 
+logging.basicConfig(level=logging.INFO)
 class sendData():
-    Fp2_F8_data = np.zeros((8),dtype='float64') 
+    # Fp2_F8_data = np.zeros((8),dtype='float64') 
+    Fp2_F8_data = np.zeros((SAMPLING_FREQ*WINDOW_LENGTH),dtype='float64') 
 
     def __init__(self,sample_Fp2_F8,queue,queue2):
         self.sample_Fp2_F8 = sample_Fp2_F8
         self.queue = queue
         self.queue2 = queue2
-
 
     def data_from_lsl(self):
         while True:
@@ -27,7 +32,8 @@ class sendData():
             inlet_Fp2_F8 = StreamInlet(streams[0])
             info = pylsl.StreamInfo()
             count = 0
-            while count < (2):  
+            # while count < (2):  
+            while count < (SAMPLING_FREQ * SHIFTED_DURATION):  
                 for info in streams: 
                     self.sample_in_Fp2_F8, timestamps = inlet_Fp2_F8.pull_sample()
                     # logging.info(f"sample_in_Fp2_F8: {self.sample_in_Fp2_F8}")
@@ -43,12 +49,14 @@ class sendData():
 
     def send_data(self):
         while True:
-            
             self.sample_Fp2_F8 = self.queue.get()
             count_for_roll = 0
-            while count_for_roll < 4:
-                self.Fp2_F8_roll = np.roll(self.Fp2_F8_data, 1)
-                self.Fp2_F8_roll[:1] = self.sample_Fp2_F8[count_for_roll]
+            while count_for_roll < (SAMPLING_FREQ * SHIFTED_DURATION):
+            # while count_for_roll < 4:
+                self.Fp2_F8_roll = np.roll(self.Fp2_F8_data, SAMPLING_FREQ)
+                self.Fp2_F8_roll[:SAMPLING_FREQ] = self.sample_Fp2_F8[count_for_roll]
+                # self.Fp2_F8_roll = np.roll(self.Fp2_F8_data,1)
+                # self.Fp2_F8_roll[:1] = self.sample_Fp2_F8[count_for_roll]
                 self.Fp2_F8_data = self.Fp2_F8_roll
                 count_for_roll  += 1
 

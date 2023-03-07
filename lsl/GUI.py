@@ -40,7 +40,7 @@ class DataInlet(Inlet):
         bufsize = (2 * math.ceil(info.nominal_srate() * PLOT_DURATION), info.channel_count())
         self.buffer = np.empty(bufsize, dtype=self.dtypes[info.channel_format()])
         empty = np.array([])
-       
+
         self.curves = [pg.PlotCurveItem(x=empty, y=empty , autoDownsample=True) for _ in range(self.channel_count)]
         for curve in self.curves:
             plt.addItem(curve)
@@ -90,16 +90,16 @@ class Home_page(QMainWindow):
     def UI(self):
         self.central_widget = QStackedWidget()
         self.setCentralWidget(self.central_widget) 
-
         page1 = HomeWindow(self)
         page1.test_btn.clicked.connect(self.test_window)
         page1.realtime_btn.clicked.connect(self.realtime_window)
         self.central_widget.addWidget(page1)        
- 
+
         # self.setGeometry(300, 100, 970, 670) 
         self.showMaximized()
         self.setWindowTitle('NEUROMATE')
         self.setWindowIcon(QIcon('C:\\Users\\ASUS\\Desktop\\testdata\\GUI\\neuromate-brain.png'))
+
 
     def test_window(self):
         page_tw = Test_page(self)
@@ -412,7 +412,7 @@ class TestWindow(QWidget):
         if self.count_sec < 10 and self.count_min < 10:
             text = '0' + str(self.count_min) + ':' + '0' + str(self.count_sec) + " s"
             self.label.setText('PREICTAL\n' + text)
-    
+
 class Realtime_page(QMainWindow):
     def __init__(self, parent=None):
         super(Realtime_page, self).__init__(parent)
@@ -421,6 +421,7 @@ class Realtime_page(QMainWindow):
     def UI(self):
         self.central_widget = QStackedWidget()
         self.setCentralWidget(self.central_widget)
+
         self.color_palette = QPalette()
         self.color_palette.setColor(QPalette.Background, QColor('#111111'))
         self.setPalette(self.color_palette)
@@ -450,11 +451,13 @@ class RealtimeWindow(QWidget):
         self.logo_layout.setAlignment(Qt.AlignCenter)
         self.logo_widget = QWidget()
         self.logo_label = QLabel(self)
+
         self.pixmap = QPixmap('C:\\Users\\ASUS\\Desktop\\testdata\\GUI\\neuromate-logo-bigbrain-top.png')
         self.logo_label.setPixmap(self.pixmap)
         self.logo_layout.addWidget(self.logo_label)
         self.logo_widget.setLayout(self.logo_layout) 
         self.logo_widget.setStyleSheet("background-color: black;")
+
    
         self.inlets: List[Inlet] = []
         print("looking for streams")
@@ -488,6 +491,7 @@ class RealtimeWindow(QWidget):
                              "}")
         self.btn_play.clicked.connect(self.update_lsl)
         self.play_btn = self.btn_play
+
         self.btn_layout.addWidget(self.btn_play)
         self.left_layout.addLayout(self.btn_layout)
         self.left_widget = QWidget()
@@ -534,6 +538,7 @@ class RealtimeWindow(QWidget):
                              "color: black;"
                              "}")
         self.btn_back_layout.addWidget(self.empty_bottom_label)
+
         self.btn_back_layout.addWidget(self.btn_back)
         self.right_layout.addLayout(self.btn_back_layout)
         self.back_btn = self.btn_back
@@ -543,6 +548,7 @@ class RealtimeWindow(QWidget):
         self.splitter1 = QSplitter(Qt.Horizontal)
         self.splitter1.addWidget(self.left_widget)
         self.splitter1.addWidget(self.right_widget)
+
         self.splitter1.setSizes([1500,300])
         self.splitter1.setStretchFactor(1, 1)
 
@@ -586,6 +592,7 @@ class RealtimeWindow(QWidget):
         plot_time = pylsl.local_clock()
         self.pw_bipolar_ch1.setXRange(plot_time - PLOT_DURATION + fudge_factor, plot_time - fudge_factor)
         self.pw_bipolar_ch2.setXRange(plot_time - PLOT_DURATION + fudge_factor, plot_time - fudge_factor)
+
         
     def start_process(self):
         if self.p is None:
@@ -594,6 +601,7 @@ class RealtimeWindow(QWidget):
             self.p.finished.connect(self.process_finished)
             self.p.start("python", ['C:\\Users\\ASUS\\Desktop\\testdata\\GUI\\demo_inlet.py'])
             # self.p.start("python", ['C:\\Users\\ASUS\\Desktop\\testdata\\GUI\\demo_stage.py'])
+
 
     def handle_stdout(self):
         data = self.p.readAllStandardOutput()

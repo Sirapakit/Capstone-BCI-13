@@ -1,5 +1,6 @@
 import numpy as np
-array = np.arange(153)  # Count window
+second = int(27993)
+array = np.arange(second)  # Count window
 
 start = 0
 end = 8
@@ -13,8 +14,3 @@ while (end <= array[-1]):
     end += 4
     
 print(count)
-
-temp = 3
-temp2 = 9
-for i in range(temp,temp2):
-    print(i)

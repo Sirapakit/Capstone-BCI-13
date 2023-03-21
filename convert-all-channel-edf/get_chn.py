@@ -2,7 +2,7 @@ import mne
 import mne.viz
 import numpy as np
 
-data_file = '../dataset/chb13/chb13_19.edf'
+data_file = '../dataset/chb03/chb03_03.edf'
 raw = mne.io.read_raw(data_file)
 raw_array = raw.get_data()
 

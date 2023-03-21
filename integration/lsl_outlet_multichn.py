@@ -5,7 +5,8 @@ from pylsl import StreamInfo, StreamOutlet, local_clock
 import numpy as np
 from numpy import loadtxt
 
-database = np.load('./chb03-4chn-for-stream.npy')
+# database = np.load('../lsl/chb03-4chn-for-stream.npy')
+database = np.load('../lsl/moke-1-100-data.npy')
 database = np.transpose(database)
 database_list = database.tolist()
 all_channel_name = 4

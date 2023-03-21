@@ -1,10 +1,40 @@
+import matplotlib.pyplot as plt
 import numpy as np
 
-data_path = './8bands-chb02.npy'
-array = np.load(data_path)
+data_path = './8bands-chb20.npy'
+data = np.load(data_path)
 
-rand_bands = np.random.randint(low=0, high=array.shape[0]-32+1)
-cropped_array = array[rand_bands:rand_bands+32,:]
+print(data.shape)
 
-print("Original shape:", array.shape)
-print("Cropped shape:", cropped_array.shape)
+event = data[-1]
+print(f"Event is :{event}")
+
+zero_indices = np.where(event == 0)[0]
+print(f"Event id 0 is :{zero_indices.shape}")
+
+one_indices = np.where(event == 1)[0]
+print(f"Event id 1 is :{one_indices.shape}")
+
+two_indices = np.where(event == 2)[0]
+print(f"Event id 2 is :{two_indices.shape}")
+
+print("------------ Comparing to ------------")
+
+data_path2 = '../create-plot-entropy/entropy-chb20-with-event.npy'
+data2 = np.load(data_path2)
+
+print(data2.shape)
+
+event2 = data2[-1]
+
+print(f"Event is :{event2}")
+
+zero_indices2 = np.where(event2 == 0)[0]
+print(f"Event id 0 is :{zero_indices2.shape}")
+
+one_indices2 = np.where(event2 == 1)[0]
+print(f"Event id 1 is :{one_indices2.shape}")
+
+two_indices2 = np.where(event2 == 2)[0]
+print(f"Event id 2 is :{two_indices2.shape}")
+

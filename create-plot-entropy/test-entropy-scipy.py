@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 
 # data_file = r'/Users/sirap/Documents/Capstone-BCI-13/create-plot-entropy/entropy/chb04/data_chb04_28_energy_v2.npy'
 data_file = r'/Users/sirap/Documents/Capstone-BCI-13/dataset/chb01/chb01_03.edf'
+
 raw = mne.io.read_raw(data_file)
 raw_array = raw.get_data()
 array_length = raw_array.shape[1]
@@ -41,9 +42,9 @@ while (end <= array_length):
     # entropy_data = np.sum(sub_data * np.log10(sub_data)) * -1  # Shannon Hard Code
     # entropy_data = find_entropy(sub_data) # Entropy def 
     # Renyi_entropy = Generalized version of Shannon
-    # entropy_data = tsallis_entropy(sub_data, 2) # Tsallis Entropy 
+    entropy_data = tsallis_entropy(sub_data, 2) # Tsallis Entropy 
     # less sensitive to the probability of low-frequency values.
-    entropy_data = log_energy_entropy(sub_data) # log energy 
+    # entropy_data = log_energy_entropy(sub_data) # log energy 
     entropy_array[count] = entropy_data
     start, end = end, end + 2 * 256
     count = count + 1

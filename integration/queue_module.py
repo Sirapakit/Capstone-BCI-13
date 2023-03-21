@@ -7,8 +7,8 @@ import sys
 
 if __name__ =='__main__':
     mp.freeze_support()
-    queue = Queue()
-    queue2 = Queue()
+    queue = Queue(maxsize=2048*2)
+    queue2 = Queue(maxsize=2048*2)
     send = sendData(np.array([]),queue,queue2)
     receive = receiveData(queue2)
 

@@ -15,9 +15,12 @@ import numpy as np
 
 
 # arr1 = np.arange(1, 4097, 1) # 16 seconds
-arr1 = np.arange(1, 15360, 1) # 60 seconds
+arr1 = np.arange(15360*0, 15360*1, 1)      # 60 seconds
+arr2 = np.arange(15360*1, 15360*2, 1) # 60 seconds
+arr3 = np.arange(15360*2, 15360*3, 1) # 60 seconds
+arr4 = np.arange(15360*3, 15360*4, 1) # 60 seconds
 
-arr = np.vstack([arr1, arr1, arr1, arr1])
+arr = np.vstack([arr1, arr2, arr3, arr4])
 print(arr.shape)
 
 np.save("moke-1-100-data.npy", arr)

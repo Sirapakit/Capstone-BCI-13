@@ -1,112 +1,31 @@
-import mne
-import mne.viz
 import numpy as np
-import json
-from scipy import signal
+import matplotlib.pyplot as plt
 from scipy.stats import mode
-import os
+from scipy import signal
 
-# Change Path for each patient
-path = '../json_convert_to_npy/chb10'
-patient_chb = 'chb10'
-json_filename_array = os.listdir(path)
-json_filename_array.sort()
-sampling_rate = 256
 
 # Get chn first
 # 23 Channels
-ch_names = ['FP1-F7', 'F7-T7', 'T7-P7', 'P7-O1', 'FP1-F3', 'F3-C3', 'C3-P3', 'P3-O1', 'FP2-F4', 'F4-C4', 'C4-P4', 'P4-O2', 'FP2-F8', 'F8-T8', 'T8-P8-0', 'P8-O2', 'FZ-CZ', 'CZ-PZ', 'P7-T7', 'T7-FT9', 'FT9-FT10', 'FT10-T8', 'T8-P8-1']
+# ch_names = ['FP1-F7', 'F7-T7', 'T7-P7', 'P7-O1', 'FP1-F3', 'F3-C3', 'C3-P3', 'P3-O1', 'FP2-F4', 'F4-C4', 'C4-P4', 'P4-O2', 'FP2-F8', 'F8-T8', 'T8-P8-0', 'P8-O2', 'FZ-CZ', 'CZ-PZ', 'P7-T7', 'T7-FT9', 'FT9-FT10', 'FT10-T8', 'T8-P8-1']
 # 28 Channels
 # ch_names = ['FP1-F7', 'F7-T7', 'T7-P7', 'P7-O1', '--0', 'FP1-F3', 'F3-C3', 'C3-P3', 'P3-O1', '--1', 'FZ-CZ', 'CZ-PZ', '--2', 'FP2-F4', 'F4-C4', 'C4-P4', 'P4-O2', '--3', 'FP2-F8', 'F8-T8', 'T8-P8-0', 'P8-O2', '--4', 'P7-T7', 'T7-FT9', 'FT9-FT10', 'FT10-T8', 'T8-P8-1']
 
-print(f'Channels name are {ch_names}')
-print(f'There are {len(ch_names)} channels')
-print(f'First channel is {ch_names[0]}')
+patient_chb = "chb10"
+data_channel_1 = np.load('./chb10/chn1-chb10.npy')
+data_channel_2 = np.load('./chb10/chn13-chb10.npy')
+data_channel_3 = np.load('./chb10/chn17-chb10.npy')
+data_channel_4 = np.load('./chb10/chn19-chb10.npy')
+# print(data_channel_4)
 
-print('--------Start--------')
-for index, json_filename in enumerate(json_filename_array):
-    # print(f'Investigating JSON: {json_filename}')
+ch_names = ['chn1','chn13','chn17','chn19']
 
-    # Open json data
-    data = open('../' + 'json_convert_to_npy/' + patient_chb + '/' + json_filename)
-    f = json.load(data)
+main_all_concat = np.vstack((data_channel_1, data_channel_2, data_channel_3, data_channel_4))
+del data_channel_1, data_channel_2, data_channel_3, data_channel_4
+# print(main_all_concat[2])
 
-    # get edf filename from json info
-    edf_name_from_json = json_filename.split("_")[1] + '_' + json_filename.split("_")[2].split('.')[0] + '.edf'
-    # print(f'Investigating EDF: {edf_name_from_json}')
-
-    # Open dataset and create array name of edf files
-    path_dataset = '../dataset/' + f['patient_ID']
-    edf_filename_array = os.listdir(path_dataset)
-    edf_filename_array.sort()
-
-    # Create empty array varialbe for concat file
-    for i in range(len(ch_names)): 
-        exec(f"main_array_channel_{i} = np.array([])") 
-        
-# Looping through every files in json_info/chbxx/info_xx_xx.json
-for index, json_filename in enumerate(json_filename_array):
-    print(f'Investigating JSON: {json_filename}')
-
-    # Read JSON data
-    data = open('../' + 'json_convert_to_npy/' + patient_chb + '/' + json_filename)
-    f = json.load(data)
-
-    # Get edf filename from json info
-    edf_name_from_json = json_filename.split("_")[1] + '_' + json_filename.split("_")[2].split('.')[0] + '.edf'
-    print(f'Investigating EDF: {edf_name_from_json}')
-
-    # Open dataset and create array name of edf files
-    path_dataset = '../dataset/' + f['patient_ID']
-    edf_filename_array = os.listdir(path_dataset)
-    edf_filename_array.sort()
-
-    # Rejected Files
-#     rejected_files = [
-# "chb20_01.edf",
-# "chb20_02.edf",
-# "chb20_03.edf",
-# "chb20_04.edf",
-# "chb20_05.edf",
-# "chb20_06.edf"
-# ]
-
-    # Looping through every files in dataset/chbxx/chbxx_xx.edf 
-    for index, edf_filename in enumerate(edf_filename_array):
-        # Check if the file name is info_xx_xx.json
-        if (json_filename.endswith('.json')):
-            data_file = path_dataset + '/' + f['raw_name']
-            if (edf_name_from_json == edf_filename):
-                # if (edf_filename not in rejected_files):
-                #     break
-                raw = mne.io.read_raw(data_file) # raw = raw format
-                raw_array = raw.get_data() # raw_array = ndarray format
-                print(raw_array[0].shape)
-
-                # Concat ( New Code )
-                for i in range(len(ch_names)):
-                    exec(f"main_array_channel_{i} = np.append(main_array_channel_{i}, raw_array{[i]})") 
-                # Should be increasing
-                print(main_array_channel_0.shape)
-        else: 
-            print(f'-------------  No {edf_name_from_json} in dataset folder -------------')
-            continue
-    else:
-        continue
-
-# Copy into bigger array
-main_all_concat = np.zeros([len(ch_names), main_array_channel_0.shape[0]])
-for i in range(len(ch_names)): 
-    # exec(f"main_array_channel_{i} = (main_array_channel_{i}-np.min(main_array_channel_{i}))/(np.max(main_array_channel_{i})-np.min(main_array_channel_{i}))")
-    exec(f"main_all_concat{[i]} = main_array_channel_{i}")  
-
-# Delete variable for faster runtime
-del main_array_channel_0, main_array_channel_1, main_array_channel_2, main_array_channel_3, main_array_channel_4
-del main_array_channel_5, main_array_channel_6, main_array_channel_7, main_array_channel_8, main_array_channel_9
-del main_array_channel_10, main_array_channel_11, main_array_channel_12, main_array_channel_13, main_array_channel_14
-del main_array_channel_15, main_array_channel_16, main_array_channel_17, main_array_channel_18, main_array_channel_19
-del main_array_channel_20, main_array_channel_21, main_array_channel_22
-print('--------Stop--------')
+sampling_rate = 256
+window_len = 8
+overlapping = 4
 
 # Debugging line
 print(f'The main_all_concat variable shape is {main_all_concat.shape}')

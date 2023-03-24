@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-data_path = './8bands-chb20.npy'
+data_path = '../convert-all-channel-edf/8bands-chb10-new.npy'
 data = np.load(data_path)
 
 print(data.shape)
@@ -20,7 +20,7 @@ print(f"Event id 2 is :{two_indices.shape}")
 
 print("------------ Comparing to ------------")
 
-data_path2 = '../create-plot-entropy/entropy-chb20-with-event.npy'
+data_path2 = './entropy-chb10-with-event.npy'
 data2 = np.load(data_path2)
 
 print(data2.shape)

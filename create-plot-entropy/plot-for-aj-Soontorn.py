@@ -1,7 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import logging
-
 
 data_load = np.load('./entropy-chb20-with-event.npy')
 sampling_rate = 256
@@ -45,10 +43,9 @@ print("Indices of 2 that have jump:", find_indexes_jump(two_indices))
 
 def plot_vline(input, first_index_of_1, first_index_of_2, last_index_of_2):
     plt.plot(input)
-    plt.xlim([(first_index_of_1 - 50), (last_index_of_2)])
+    plt.xlim([(first_index_of_1 - 500), (last_index_of_2)])
     plt.vlines(first_index_of_1, max(input), min(input), colors='green', linestyles='dotted')
     plt.vlines([first_index_of_2, last_index_of_2], max(input), min(input), colors='red', linestyles='dotted')
-
 
 ### Need to calculate new VLINE Because the data is cropped
 ### Must use 0, 1, 2 Label to plot
@@ -57,16 +54,16 @@ plt.figure(1)
 plt.suptitle("CHB20 Shannon Entropy")
 
 plt.subplot(311)
-plt.title("Seizure 5")
-plot_vline(sig_chn_cropped, 4977, 7677, 7684)
+plt.title("Seizure 1")
+plot_vline(sig_chn_cropped, 3035, 3935, 3941)
 
 plt.subplot(312)
 plt.title("Seizure 3")
-plot_vline(sig_chn_cropped, 3942, 4199, 4208)
+plot_vline(sig_chn_cropped, 4209, 4968, 4976)
 
 plt.subplot(313)
-plt.title("Seizure 4")
-plot_vline(sig_chn_cropped, 4209, 4968, 4976)
+plt.title("Seizure 7")
+plot_vline(sig_chn_cropped, 8640, 9540, 9548)
 
 
 plt.show()

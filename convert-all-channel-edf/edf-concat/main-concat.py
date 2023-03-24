@@ -4,8 +4,8 @@ import json
 import os
 
 # Change Path for each patient
-path = '../../json_convert_to_npy/chb05'
-patient_chb = 'chb05'
+path = '../../json_convert_to_npy/chb10'
+patient_chb = 'chb10'
 json_filename_array = os.listdir(path)
 json_filename_array.sort()
 sampling_rate = 256
@@ -57,25 +57,8 @@ for index, json_filename in enumerate(json_filename_array):
     edf_filename_array.sort()
 
     # Rejected Files
-    rejected_files = [
-"chb05_23.edf",
-"chb05_24.edf",
-"chb05_25.edf",
-"chb05_26.edf",
-"chb05_27.edf",
-"chb05_28.edf",
-"chb05_29.edf",
-"chb05_30.edf",
-"chb05_31.edf",
-"chb05_32.edf",
-"chb05_33.edf",
-"chb05_34.edf",
-"chb05_35.edf",
-"chb05_36.edf",
-"chb05_37.edf",
-"chb05_38.edf",
-"chb05_39.edf"
-]
+#     rejected_files = [
+# ]
 
     # Looping through every files in dataset/chbxx/chbxx_xx.edf 
     for index, edf_filename in enumerate(edf_filename_array):
@@ -83,8 +66,8 @@ for index, json_filename in enumerate(json_filename_array):
         if (json_filename.endswith('.json')):
             data_file = path_dataset + '/' + f['raw_name']
             if (edf_name_from_json == edf_filename):
-                if (edf_filename in rejected_files):
-                    break
+                # if (edf_filename in rejected_files):
+                #     break
                 raw = mne.io.read_raw(data_file) # raw = raw format
                 raw_array = raw.get_data() # raw_array = ndarray format
                 print(raw_array[0].shape)

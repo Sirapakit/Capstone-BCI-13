@@ -16,9 +16,6 @@ SHIFTED_DURATION = 4 # sec
 
 logging.basicConfig(level=logging.INFO)
 class sendData():
-
-    count_file = 0
-    # Fp2_F8_data = np.zeros((8),dtype='float64') 
     Fp2_F8_data = np.zeros((SAMPLING_FREQ*WINDOW_LENGTH),dtype='float64') 
 
     def __init__(self, samples_chn_0, samples_chn_1, samples_chn_2, samples_chn_3, queue, queue2, queue3):
@@ -56,42 +53,35 @@ class sendData():
                 for one_stream in all_streams_name:
                     print(f'Found stream: {one_stream.name()}')
 
-                    if(one_stream.name() == "bipolar_ch0_database"):
+                    if(one_stream.name() == "my_stream"):
                         inlet_chn_0 = StreamInlet(one_stream)
-   
-                    if(one_stream.name() == "bipolar_ch1_database"):
-                        inlet_chn_1 = StreamInlet(one_stream)
-
-                    # if(one_stream.name() == "bipolar_ch2_database"):
-                    #     inlet_chn_2 = StreamInlet(one_stream)
-                   
-                    # if(one_stream.name() == "bipolar_ch3_database"):
-                    #     inlet_chn_3 = StreamInlet(one_stream)
 
                 # self.receive_flag.set()
 
             # add code maxSize 
             self.samples_chn_0 = np.array([])
-            self.samples_chn_1 = np.array([])
-            # self.samples_chn_2 = np.array([])
-            # self.samples_chn_3 = np.array([])
 
             # while self.receive_flag.is_set():
             while True:
                 self.sub_samples_chn_0, timestamps = inlet_chn_0.pull_chunk()
-                self.sub_samples_chn_1, timestamps = inlet_chn_1.pull_chunk()
+                # self.sub_samples_chn_1, timestamps = inlet_chn_1.pull_chunk()
 
-                self.flat_sub_samples_chn_0 = [item for sublist in self.sub_samples_chn_0 for item in sublist] # List flatten
-                self.flat_sub_samples_chn_1 = [item for sublist in self.sub_samples_chn_1 for item in sublist] # List flatten
+                # Extract first index of every sublist
+                first_list  = [sublist[0] for sublist in self.sub_samples_chn_0]
+                second_list = [sublist[1] for sublist in self.sub_samples_chn_0]
+                third_list  = [sublist[2] for sublist in self.sub_samples_chn_0]
+                fourth_list = [sublist[3] for sublist in self.sub_samples_chn_0]
 
+                self.final_list = []
+                self.final_list.append(first_list)
+                self.final_list.append(second_list)
+                self.final_list.append(third_list)
+                self.final_list.append(fourth_list)
+                # print(f"Final List is {self.final_list}"
 
-                # if timestamps:
-                #     self.samples_chn_0 = np.hstack((self.samples_chn_0, np.round(self.sub_samples_chn_0[0],7)))
-                    # self.samples_chn_1 = np.hstack((self.samples_chn_1, np.round(self.sub_samples_chn_1[0],7)))
-                    # self.samples_chn_2 = np.hstack((self.samples_chn_2, np.round(self.sub_samples_chn_2[0],7)))
-                    # self.samples_chn_3 = np.hstack((self.samples_chn_3, np.round(self.sub_samples_chn_3[0],7)))
-
-                # time.sleep(0.0004)
+                # List Flatten
+                # self.flat_sub_samples_chn_0 = [item for sublist in self.sub_samples_chn_0 for item in sublist] # List flatten
+                # self.flat_sub_samples_chn_1 = [item for sublist in self.sub_samples_chn_1 for item in sublist] # List flatten
               
                 # print(f"Channel 0 inlet: {self.flat_sub_samples_chn_0}")
                 # print(f"Channel 1 inlet: {self.flat_sub_samples_chn_1}")
@@ -99,108 +89,74 @@ class sendData():
 
                 sys.stdout.flush()
 
-                # Put those 4 in queue
-                self.queue.put(self.flat_sub_samples_chn_0)
-                self.queue.put(self.flat_sub_samples_chn_1)
-                # self.queue.put(self.samples_chn_2)
-                # self.queue.put(self.samples_chn_3)
-
-                time.sleep(1)
+                self.queue.put(self.final_list)
+                time.sleep(1.00) # 1 = 255 rate
 
     def count_samples_from_lsl(self):
-        # self.samples_from_lsl_1 = np.array([]) # main chunk
-        # self.samples_from_lsl_0 = np.array([]) # main chunk
+        # Initialize main chunk
+        # self.main_chunk_chn0 = np.array([[]]) 
+        self.main_chunk_chn0 = np.empty((4, 0))
         while True:
-            self.samples_from_lsl_0 = self.queue.get() # sub chunk 
-
-            print(f"From queue1: {self.samples_from_lsl_0}")
-
-        # while True:
-        #     if not self.queue.empty():
-        #         self.sub_samples_from_lsl_0 = self.queue.get() # sub chunk 
-        #         self.samples_from_lsl_0 =  np.hstack((self.samples_from_lsl_0, self.sub_samples_from_lsl_0)) # concat main-chunk with sub-chunk
-        #         print(f"Shape samples_from_lsl_1 is {self.samples_from_lsl_0.shape}") # Shape of main
+            if not self.queue.empty():
+                self.new_sub_chunk_chn0 = self.queue.get() # get new sub-chunk as list
+                # print(f"From queue1 data shape is: {len(self.new_sub_chunk_chn0[0])}")
                 
-        #         # if (len(main_chunk) >= 1024:):
-        #         if (self.samples_from_lsl_0.shape[0] >= 1024): 
-        #             diff = (self.samples_from_lsl_0.shape[0]) - 1024
-
-        #             if (diff == 0):
-        #                 # if hastack for 1024 samples --> put to queue2
-        #                 self.queue2.put(self.samples_from_lsl_0)
-
-        #             elif (diff >= 1):
-        #                 # main_chunk = main_chunk[0: -diff]
-        #                 self.samples_from_lsl_0 = self.samples_from_lsl_0[0: -diff] 
-
-        #                 # crop hastack to 1024 samples --> put to queue2
-        #                 self.queue2.put(self.samples_from_lsl_0)
-
-        #                 # main_chunk = main_chunk[-diff:]
-        #                 self.samples_from_lsl_0 = self.samples_from_lsl_0[-diff: ]
-        #                 print(f"Shape from LSL after sorting is {self.samples_from_lsl_0.shape}") # Shape of main
-
-        #             else: 
-        #                 raise Exception ("Error: Chunk cropping failed")
+                self.main_chunk_chn0 = np.hstack((self.main_chunk_chn0, self.new_sub_chunk_chn0)) # concat main-chunk with sub-chunk
+                # print(f"Shape samples_from_lsl_1 is {self.main_chunk_chn0.shape}") # Shape of main chunk
                 
+                # Code for cropping to 1024 samples for every main chunk
+                if (self.main_chunk_chn0.shape[1] >= 1024): 
+                    diff = (self.main_chunk_chn0.shape[1]) - 1024
+                    print(f"Diff is {diff}")
+
+                    if (diff == 0):
+                        # if main chunk is 1024 samples --> put to queue2
+                        self.queue2.put(self.main_chunk_chn0)
+                        print(f"Successfully put main chunk to queue2")
+
+                    elif (diff >= 1):
+                        # main_chunk = main_chunk[0: -diff]
+                        # print(f"Exceeded samples is {self.main_chunk_chn0[:, -diff:] } ")
+                        self.put_chunk_chn0 = self.main_chunk_chn0[:, :-diff] 
+                        # print(f"Main chunk is {self.main_chunk_chn0}")            # Main chunk before cropping
+                        # print(f"Main chunk size is {self.main_chunk_chn0.shape}") # Main chunk before cropping size
+
+                        # crop hstack to 1024 samples --> put to queue2
+                        self.queue2.put(self.put_chunk_chn0)
+                        # print(f"Put chunk is {self.put_chunk_chn0}")            # Main chunk before cropping
+                        print(f"Put chunk size is {self.put_chunk_chn0.shape}") # Main chunk before cropping sizw
+                        print(f"Successfully put main chunk to queue2")
+
+                        # main_chunk = main_chunk[-diff:]
+                        self.main_chunk_chn0 = self.main_chunk_chn0[:, -diff:]
+                        # print(f"Left over chunk is {self.main_chunk_chn0}")               # Main chunk after cropping
+                        # print(f"Left over chunk shape is {self.main_chunk_chn0.shape}") # Shape of main chunk after cropping
+
+                    else: 
+                        raise KeyError ("Error: Chunk cropping failed")
 
     def send_data(self):
-        self.main_channel_0_roll = np.zeros(2048)
-        # self.main_channel_1_roll = np.zeros(2048)
-        # self.main_channel_2_roll = np.zeros(2048)
-        # self.main_channel_3_roll = np.zeros(2048)
-
+        self.main_channel_0_roll = np.zeros((4,2048))
         # self.roll_flag.set()
         while True:
             if not self.queue.empty():
                 self.queue2_samples_chn_0 = self.queue2.get()
-                # self.queue2_samples_chn_1 = self.queue.get()
-                # self.queue2_samples_chn_2 = self.queue.get()
-                # self.queue2_samples_chn_3 = self.queue.get()
 
-                # print(f"Channel 0 data is : {self.samples_chn_0}")
-                # print(f"Channel 1 data is : {self.samples_chn_1}")
-                # print(f"Channel 2 data is : {self.samples_chn_2}")
-                # print(f"Channel 3 data is : {self.samples_chn_3}")
+                # print(f"Channel 0 data from queue2 is : \n{self.queue2_samples_chn_0}")
+                # print(f"Data size from queue2 is:{self.queue2_samples_chn_0.shape}") # Should be 1024 samples from queue2 (last def)
+                
+                shift = SAMPLING_FREQ*SHIFTED_DURATION
+                for i in range(self.main_channel_0_roll.shape[0]):  # loop over 4 rows
+                    self.main_channel_0_roll[i, :] = np.roll(self.main_channel_0_roll[i, :], shift) # np.roll each row individually
 
-                print(f"Data size is:{self.queue2_samples_chn_0.shape}") # Should be 1024 samples from queue2 (last def)
-                # print(f"Data size is:{self.queue2_samples_chn_1.shape}") # Should be 1024 samples from queue2 (last def)
-                # print(f"Data size is:{self.queue2_samples_chn_2.shape}") # Should be 1024 samples from queue2 (last def)
-                # print(f"Data size is:{self.queue2_samples_chn_3.shape}") # Should be 1024 samples from queue2 (last def)
+                self.main_channel_0_roll[:, SAMPLING_FREQ*SHIFTED_DURATION:] = self.queue2_samples_chn_0
 
-                # while count_for_roll < 4:
-                # while count_for_roll < (SAMPLING_FREQ * SHIFTED_DURATION): # This line should get 2048 samples
-                # count_for_roll = 0
-                # while count_for_roll < ((SAMPLING_FREQ * SHIFTED_DURATION)): # This line should get 1024 samples: get 1024 samples
-                # while self.roll_flag.is_set(): # True = Flag
-                # print(f"Sample shape Fp2 F8 is {self.samples_chn_0.shape}")
-
-                self.main_channel_0_roll = np.roll(self.main_channel_0_roll, SAMPLING_FREQ*SHIFTED_DURATION)
-                self.main_channel_0_roll[SAMPLING_FREQ*SHIFTED_DURATION:] = self.queue2_samples_chn_0
-
-                # self.main_channel_1_roll = np.roll(self.main_channel_1_roll, SAMPLING_FREQ*SHIFTED_DURATION)
-                # self.main_channel_1_roll[SAMPLING_FREQ*SHIFTED_DURATION:] = self.queue2_samples_chn_1
-
-                # self.main_channel_2_roll = np.roll(self.main_channel_2_roll, SAMPLING_FREQ*SHIFTED_DURATION)
-                # self.main_channel_2_roll[SAMPLING_FREQ*SHIFTED_DURATION:] = self.queue2_samples_chn_2
-
-                # self.main_channel_3_roll = np.roll(self.main_channel_3_roll, SAMPLING_FREQ*SHIFTED_DURATION)
-                # self.main_channel_3_roll[SAMPLING_FREQ*SHIFTED_DURATION:] = self.queue2_samples_chn_0
-
-                print(f"Channel 0 After roll :{self.main_channel_0_roll}")
-                print(f"Size: :{self.main_channel_0_roll.shape}")
-                # print(f"Channel 1 After roll :{self.channel_1_roll}")
-                # print(f"Size: :{self.channel_1_roll.shape}")
-                # print(f"Channel 2 After roll :{self.channel_2_roll}")
-                # print(f"Size: :{self.channel_2_roll.shape}")
-                # print(f"Channel 3 After roll :{self.channel_3_roll}")
-                # print(f"Size: :{self.channel_3_roll.shape}")
+                # print(f"Channel 0 After roll :\n {self.main_channel_0_roll}")
+                print(f"Size after roll :{self.main_channel_0_roll.shape}")
 
                 sys.stdout.flush()
                 self.queue3.put(self.main_channel_0_roll)
-                # self.queue3.put(self.channel_1_roll)
-                # self.queue3.put(self.channel_2_roll)
-                # self.queue3.put(self.channel_3_roll)
+                print(f"Successfully put window to queue3")
     
                 # self.put_flag.clear()
                 # self.roll_flag.clear()

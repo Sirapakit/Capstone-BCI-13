@@ -1,9 +1,26 @@
 import numpy as np
 from scipy import signal
 from scipy.stats import mode
+import os
 
 # Change Path for each patient
-data_with_event = np.load('./8bands-nonorm/8bands-chb03-data-crop.npy')
+patient_chb = 'chb15'
+data_with_event = np.load('./8bands-nonorm/' + patient_chb + '/8bands-' + patient_chb + '-data-crop_5.npy')
+
+# --------------------Rejected Channel---------------------------------
+# Reject Unused Channel ( Bands )
+print(f'Before rejected: {data_with_event.shape}')
+# For chb11, chb14, chb17, chb20, chb16-1
+# rows_to_reject = np.concatenate(([4, 9, 12, 17, 22, 28],))
+rows_to_reject = np.concatenate(([4, 9, 13, 18, 23],))
+data_with_event = np.delete(data_with_event, rows_to_reject, axis=0)
+print(f'After rejected: {data_with_event.shape}')
+# --------------------Rejected Channel---------------------------------
+
+# Rescale data
+# data_with_event[0:-1] = data_with_event[0:-1] * 294.4835846887523
+
+print(f"--------PATIENT {patient_chb}--------")
 sampling_rate = 256
 data_len = data_with_event.shape[1]
 data_chn = data_with_event.shape[0] - 1 
@@ -37,8 +54,9 @@ for i in range(data_chn):
     data_filtered_array[i*num_bands+7][:]  = signal.filtfilt(filter_band_8, 1, data_with_event[i])
     print(f'###############Convolute channel {i+1} done###############')
 
-for i in range(num_bands * data_chn):
-    data_filtered_array[i] = (data_filtered_array[i]-np.min(data_filtered_array[i]))/(np.max(data_filtered_array[i])-np.min(data_filtered_array[i]))
+# Norm FB
+# for i in range(num_bands * data_chn):
+#     data_filtered_array[i] = (data_filtered_array[i]-np.min(data_filtered_array[i]))/(np.max(data_filtered_array[i])-np.min(data_filtered_array[i]))
 
 # Add event channel
 data_filtered_array[-1][:] = data_with_event[-1]
@@ -50,6 +68,7 @@ del data_with_event
 del filter_band_1, filter_band_2, filter_band_3, filter_band_4, filter_band_5, filter_band_6, filter_band_7, filter_band_8
 
 # Calculate Energy perband
+print(f"--------Calculating Energy {patient_chb}--------")
 shifted_sec = 4
 energy_array = np.zeros(((num_bands*data_chn)+1, int(data_filtered_array.shape[1]/(sampling_rate*shifted_sec))))
 for feat in range(num_bands * data_chn + 1):
@@ -75,22 +94,25 @@ for feat in range(num_bands * data_chn + 1):
 # for i in range(num_bands * data_chn):
 #     energy_array[i] = (energy_array[i]-np.min(energy_array[i]))/(np.max(energy_array[i])-np.min(energy_array[i]))
 
-# --------------------Rejected Channel---------------------------------
-# Reject Unused Channel ( Bands )
+# # --------------------Rejected Channel---------------------------------
+# # Reject Unused Channel ( Bands )
 # print(f'Before rejected: {energy_array.shape}')
+# # For chb11, chb14, chb17, chb20, chb16-1
 # rows_to_reject = np.concatenate((np.arange(32, 40), np.arange(72, 80), np.arange(96, 104), np.arange(136, 144), np.arange(176, 184)))
-# rows_to_reject = np.concatenate((np.arange(32, 40), np.arange(72, 80), np.arange(96, 104), np.arange(136, 144), np.arange(176, 192)))
-
-# rows_to_reject = np.concatenate((np.arange(32, 40), np.arange(72, 80), np.arange(96, 112), np.arange(144, 152), np.arange(184, 192)))
+# # For chb15
+# # rows_to_reject = np.concatenate((np.arange(32, 40), np.arange(72, 80), np.arange(104, 112), np.arange(144, 152), np.arange(184, 192)))
+# # rows_to_reject = np.concatenate((np.arange(32, 40), np.arange(72, 80), np.arange(96, 104), np.arange(136, 144), np.arange(176, 192)))
+# # rows_to_reject = np.concatenate((np.arange(32, 40), np.arange(72, 80), np.arange(96, 112), np.arange(144, 152), np.arange(184, 192)))
 # energy_array = np.delete(energy_array, rows_to_reject, axis=0)
 # print(f'After rejected: {energy_array.shape}')
-# --------------------Rejected Channel---------------------------------
+# # --------------------Rejected Channel---------------------------------
 
 # Debugging line
 print(f'Count 2: {np.count_nonzero(energy_array[-1]==2)}')
-print("--------Done Calculating Energy--------")
+print(f"--------Done Calculating Energy {patient_chb}--------")
 
 # Save file take some times
 print('-------May take long time to save, be patient---------')
-filename = "./8bands-nonorm/8bands-chb03-norm_FB.npy"
+filename = "./8bands-nonorm/" + patient_chb + "/8bands-" + patient_chb + "-nonorm-part5.npy"
 np.save(filename, energy_array)
+os.system('say "finish"')

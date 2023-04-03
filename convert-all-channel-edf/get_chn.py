@@ -1,22 +1,19 @@
 import mne
 import mne.viz
 import numpy as np
+import os
 
-# chb = "chb01"
-# data_file = '../dataset/' + chb + '/' + chb + '_03.edf'
-# raw = mne.io.read_raw(data_file)
-# raw_array = raw.get_data()
+chb = "chb15"
+data_file = '../dataset/' + chb + '/' + chb + '_02.edf'
+raw = mne.io.read_raw(data_file)
+raw_array = raw.get_data()
 
-# print(raw.ch_names)
-# print('-----------------------------------------------')
-# print(f"There is {len(raw.ch_names)} channels in {chb}")
-# print('-----------------------------------------------')
+print(raw.ch_names)
+print('-----------------------------------------------')
+print(f"There is {len(raw.ch_names)} channels in {chb}")
+print('-----------------------------------------------')
+os.system('say "finish"')
 
-
-data_1 = np.load('./8bands-nonorm/8bands-chb03-nonorm.npy')
-data_2 = np.load('./8bands-nonorm/8bands-chb03-norm.npy')
-
-mean1 = np.mean(data_1[13*8])
-mean2 = np.mean(data_2[13*8])
-
-print(f"COEFF is {mean2/mean1}")
+data2 = np.load('./8bands-nonorm/chb15/8bands-chb15-data-crop.npy')
+print(data2.shape)
+print(data2[4])

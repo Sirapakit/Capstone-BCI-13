@@ -4,7 +4,7 @@ import time
 from pylsl import StreamInfo, StreamOutlet, local_clock
 import numpy as np
 
-database = np.load('../lsl/chb03-4chn-significant-stream.npy')
+database = np.load('../lsl/chb03-8coeff.npy')
 # database = np.load('../lsl/moke-1-100-data.npy')
 database = np.transpose(database)
 all_channel_name = 4

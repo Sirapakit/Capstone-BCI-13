@@ -1,0 +1,54 @@
+# chb02
+# seizure_start_info = np.array([54130, 57931, 69128]) * sampling_rate
+# seizure_stop_info  = np.array([54212, 58012, 69137]) * sampling_rate 
+
+rejected_chn = [
+"chb02_20.edf"
+"chb02_21.edf"
+"chb02_22.edf"
+"chb02_23.edf"
+"chb02_24.edf"
+"chb02_25.edf"
+"chb02_26.edf"
+"chb02_27.edf"
+"chb02_28.edf"
+"chb02_29.edf"
+"chb02_30.edf"
+"chb02_31.edf"
+"chb02_32.edf"
+"chb02_33.edf"
+"chb02_34.edf"
+"chb02_35.edf"]
+
+
+# Seizure 0 ( More ) 
+seizure_period_0 = main_all_concat[:, seizure_start_info[0]-10800*sampling_rate: seizure_stop_info[0]]
+event_period_0   = np.zeros([1, seizure_period_0.shape[1]])
+event_period_0[0][-((3600+82) * sampling_rate): -(82 * sampling_rate + 1)] = 1
+event_period_0[0][-(82 * sampling_rate):] = 2
+print(f'{(seizure_period_0.shape)} = {(event_period_0.shape)}')
+print(f'Count 0 in event_period_0: {np.count_nonzero(event_period_0==0)}')
+print(f'Count 1 in event_period_0: {np.count_nonzero(event_period_0==1)}')
+print(f'Count 2 in event_period_0: {np.count_nonzero(event_period_0==2)}')
+print("-----------------------------------------------------------------")
+
+# Seizure 1 ( Less ) 
+seizure_period_1 = main_all_concat[:, seizure_stop_info[0]: seizure_stop_info[1]]
+event_period_1   = np.zeros([1, seizure_period_1.shape[1]])
+event_period_1[0][-((3600+81) * sampling_rate): -(81 * sampling_rate + 1)] = 1
+event_period_1[0][-(81 * sampling_rate):] = 2
+print(f'Count 0 in event_period_1: {np.count_nonzero(event_period_1==0)}')
+print(f'Count 1 in event_period_1: {np.count_nonzero(event_period_1==1)}')
+print(f'Count 2 in event_period_1: {np.count_nonzero(event_period_1==2)}')
+print("-----------------------------------------------------------------")
+
+# Seizure 2 ( More ) 
+seizure_period_2 = main_all_concat[:, seizure_start_info[2] - 10800*sampling_rate: seizure_stop_info[2]]
+event_period_2   = np.zeros([1, seizure_period_2.shape[1]])
+event_period_2[0][-((3600+9) * sampling_rate): -(9 * sampling_rate + 1)] = 1
+event_period_2[0][-(9 * sampling_rate):] = 2
+print(f'Count 0 in event_period_2: {np.count_nonzero(event_period_2==0)}')
+print(f'Count 1 in event_period_2: {np.count_nonzero(event_period_2==1)}')
+print(f'Count 2 in event_period_2: {np.count_nonzero(event_period_2==2)}')
+print("-----------------------------------------------------------------")
+

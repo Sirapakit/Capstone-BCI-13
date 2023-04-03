@@ -1,30 +1,24 @@
-import multiprocessing as mp
 import logging
 import numpy as np
-import time
-import math
-import pylsl
 import sys
-import pyqtgraph as pg
-from typing import List
-from pylsl import StreamInlet, resolve_stream
 from scipy import signal
-from joblib import load
-from sklearn.svm import SVC
 import pickle
+from termcolor import colored
+import os
+
 import gc
 
 NUM_BANDS = 8
 SAMPLING_FREQ = 256
 WINDOW_LENGTH = 8   # sec
 
-def clear_ram(self):
-    del self.Fp2_F8_data
-    del self.data_filtered_array
-    del self.energy_array
-    del self.pred
-    del self.message
-    gc.collect()
+# def clear_ram(self):
+#     del self.Fp2_F8_data
+#     del self.data_filtered_array
+#     del self.energy_array
+#     del self.pred
+#     del self.message
+#     gc.collect()
 
 logging.basicConfig(level=logging.INFO)
 class receiveData():
@@ -60,55 +54,70 @@ class receiveData():
                     self.data_filtered_array[i*NUM_BANDS+7][:]  = signal.filtfilt(filter_band_8, 1, self.window_chn0[i])
                 print(f"----------Convolution output is {self.data_filtered_array.shape[0]} bands----------å")
 
-                # Normalize to 0 - 1
-                for i in range(self.data_filtered_array.shape[0]):
-                    self.data_filtered_array[i][:] = (self.data_filtered_array[i][:]-np.min(self.data_filtered_array[i]))/(np.max(self.data_filtered_array[i])-np.min(self.data_filtered_array[i]))
-                print(f"----------Normalise output after Filter Bank is {self.data_filtered_array.shape[0]} bands----------")
-
                 # Energy from Normalise Convolution
                 self.energy_array = np.zeros((self.window_chn0.shape[0]*NUM_BANDS, 1))  
                 for i in range(self.window_chn0.shape[0]):  
-                    self.energy_array[i*NUM_BANDS+0][:] = np.sum(np.power(self.data_filtered_array[i*NUM_BANDS+0], 2))
-                    self.energy_array[i*NUM_BANDS+1][:] = np.sum(np.power(self.data_filtered_array[i*NUM_BANDS+1], 2))
-                    self.energy_array[i*NUM_BANDS+2][:] = np.sum(np.power(self.data_filtered_array[i*NUM_BANDS+2], 2))
-                    self.energy_array[i*NUM_BANDS+3][:] = np.sum(np.power(self.data_filtered_array[i*NUM_BANDS+3], 2))
-                    self.energy_array[i*NUM_BANDS+4][:] = np.sum(np.power(self.data_filtered_array[i*NUM_BANDS+4], 2))
-                    self.energy_array[i*NUM_BANDS+5][:] = np.sum(np.power(self.data_filtered_array[i*NUM_BANDS+5], 2))
-                    self.energy_array[i*NUM_BANDS+6][:] = np.sum(np.power(self.data_filtered_array[i*NUM_BANDS+6], 2))
-                    self.energy_array[i*NUM_BANDS+7][:] = np.sum(np.power(self.data_filtered_array[i*NUM_BANDS+7], 2))
-                print(f"----------Energy output is {self.energy_array} bands----------å")
+                    self.energy_array[i*NUM_BANDS+0][:] = np.power(200, 2) * (np.sum(np.power(self.data_filtered_array[i*NUM_BANDS+0], 2)))
+                    self.energy_array[i*NUM_BANDS+1][:] = np.power(300, 2) * (np.sum(np.power(self.data_filtered_array[i*NUM_BANDS+1], 2)))
+                    self.energy_array[i*NUM_BANDS+2][:] = np.power(400, 2) * (np.sum(np.power(self.data_filtered_array[i*NUM_BANDS+2], 2)))
+                    self.energy_array[i*NUM_BANDS+3][:] = np.power(500, 2) * (np.sum(np.power(self.data_filtered_array[i*NUM_BANDS+3], 2)))
+                    self.energy_array[i*NUM_BANDS+4][:] = np.power(600, 2) * (np.sum(np.power(self.data_filtered_array[i*NUM_BANDS+4], 2)))
+                    self.energy_array[i*NUM_BANDS+5][:] = np.power(700, 2) * (np.sum(np.power(self.data_filtered_array[i*NUM_BANDS+5], 2)))
+                    self.energy_array[i*NUM_BANDS+6][:] = np.power(800, 2) * (np.sum(np.power(self.data_filtered_array[i*NUM_BANDS+6], 2)))
+                    self.energy_array[i*NUM_BANDS+7][:] = np.power(900, 2) * (np.sum(np.power(self.data_filtered_array[i*NUM_BANDS+7], 2)))
+
+                    # self.energy_array[i*NUM_BANDS+0][:] = np.sum(np.power(self.data_filtered_array[i*NUM_BANDS+0], 2))
+                    # self.energy_array[i*NUM_BANDS+1][:] = np.sum(np.power(self.data_filtered_array[i*NUM_BANDS+1], 2))
+                    # self.energy_array[i*NUM_BANDS+2][:] = np.sum(np.power(self.data_filtered_array[i*NUM_BANDS+2], 2))
+                    # self.energy_array[i*NUM_BANDS+3][:] = np.sum(np.power(self.data_filtered_array[i*NUM_BANDS+3], 2))
+                    # self.energy_array[i*NUM_BANDS+4][:] = np.sum(np.power(self.data_filtered_array[i*NUM_BANDS+4], 2))
+                    # self.energy_array[i*NUM_BANDS+5][:] = np.sum(np.power(self.data_filtered_array[i*NUM_BANDS+5], 2))
+                    # self.energy_array[i*NUM_BANDS+6][:] = np.sum(np.power(self.data_filtered_array[i*NUM_BANDS+6], 2))
+                    # self.energy_array[i*NUM_BANDS+7][:] = np.sum(np.power(self.data_filtered_array[i*NUM_BANDS+7], 2))
+                print(f"----------Energy output is {self.energy_array.shape} bands----------å")
                 
                 print(f"Shape OUTPUT before prediction is {self.energy_array.shape}")
 
                 # Prediction
+                # self.energy_array = self.energy_array * 40000.0
                 self.energy_array = self.energy_array.reshape(1, -1)
+
                 if (np.isnan(self.energy_array).any()):
                     self.energy_array = np.zeros((1, 32))
                     print("self.energy array contains NAN")
+
                 print(f"Final OUTPUT is {self.energy_array}")
                 # print(f"Shape OUTPUT reshape is {self.energy_array.shape}")
 
-                with open("./model_chb03_4ch.pkl", "rb") as file:
+                with open("./model_chb03_4chn_coeff.pkl", "rb") as file:
                     model = pickle.load(file)
                     self.pred = model.predict(self.energy_array)
+                    # self.pred[0] = 2
                     print(f"Prediction is {self.pred}")
-                    
-                    if self.pred[0] == 0:
-                        logging.info("Non-Seizure")
-                        self.message = 'Non-seizure'
+                    count = 1
+                    num_window = 103
+                    for i in range(num_window):
+                        if self.pred[0] == 0:
+                            print(colored("Non-seizure","green"))
+                            os.system('say "Non-seizure"')
+                            self.message = 'Non-seizure'
+                            np.savetxt(f'../integration/prediction_realtime_chb03/pred_{count}.txt',self.message)
+                            
+                        elif self.pred[0] == 1:
+                            print(colored("Preictal","yellow"))
+                            os.system('say "Pre-Ictal"')
+                            self.message = 'Preictal'
+                            np.savetxt(f'../integration/prediction_realtime_chb03/pred_{count}.txt',self.message)
                         
-                    elif self.pred[0] == 1:
-                        logging.info("Preictal")
-                        self.message = 'Preictal'
-                    
-                    elif self.pred[0] == 2:
-                        logging.info("Seizure")
-                        self.message = 'Seizure'
-                    
-                    else:
-                        raise KeyError ("Error Prediction")
+                        elif self.pred[0] == 2:
+                            print(colored("Seizure","red"))
+                            os.system('say "Seizure"')
+                            self.message = 'Seizure'
+                            np.savetxt(f'../integration/prediction_realtime_chb03/pred_{count}.txt',self.message)
+                        
+                        else:
+                            raise KeyError ("Error Prediction")
+                        count +=1 
 
                 # clear_ram()
                 sys.stdout.flush()
-
-            # logging.info("Stopping receive_data.")

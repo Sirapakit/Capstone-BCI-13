@@ -1,0 +1,34 @@
+# chb07
+seizure_start_info = np.array([144081, 156846, 240635]) * sampling_rate
+seizure_stop_info  = np.array([144167, 156942, 240778]) * sampling_rate 
+
+# Seizure 0 ( More ) 
+seizure_period_0 = main_all_concat[:, seizure_start_info[0] - 10800*sampling_rate: seizure_stop_info[0]]
+event_period_0   = np.zeros([1, seizure_period_0.shape[1]])
+event_period_0[0][-((3600+86) * sampling_rate): -(86 * sampling_rate + 1)] = 1
+event_period_0[0][-(86 * sampling_rate):] = 2
+print(f'{(seizure_period_0.shape)} = {(event_period_0.shape)}')
+print(f'Count 0 in event_period_0: {np.count_nonzero(event_period_0==0)}')
+print(f'Count 1 in event_period_0: {np.count_nonzero(event_period_0==1)}')
+print(f'Count 2 in event_period_0: {np.count_nonzero(event_period_0==2)}')
+print("-----------------------------------------------------------------")
+
+# Seizure 1 ( More ) 
+seizure_period_1 = main_all_concat[:, seizure_start_info[1] - 10800*sampling_rate: seizure_stop_info[1]]
+event_period_1   = np.zeros([1, seizure_period_1.shape[1]])
+event_period_1[0][-((3600+96) * sampling_rate): -(96 * sampling_rate + 1)] = 1
+event_period_1[0][-(96 * sampling_rate):] = 2
+print(f'Count 0 in event_period_1: {np.count_nonzero(event_period_1==0)}')
+print(f'Count 1 in event_period_1: {np.count_nonzero(event_period_1==1)}')
+print(f'Count 2 in event_period_1: {np.count_nonzero(event_period_1==2)}')
+print("-----------------------------------------------------------------")
+
+# Seizure 2 ( More ) 
+seizure_period_2 = main_all_concat[:, seizure_start_info[2] - 10800*sampling_rate: seizure_stop_info[2]]
+event_period_2   = np.zeros([1, seizure_period_2.shape[1]])
+event_period_2[0][-((3600+143) * sampling_rate): -(143 * sampling_rate + 1)] = 1
+event_period_2[0][-(143 * sampling_rate):] = 2
+print(f'Count 0 in event_period_2: {np.count_nonzero(event_period_2==0)}')
+print(f'Count 1 in event_period_2: {np.count_nonzero(event_period_2==1)}')
+print(f'Count 2 in event_period_2: {np.count_nonzero(event_period_2==2)}')
+print("-----------------------------------------------------------------")

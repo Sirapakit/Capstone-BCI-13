@@ -5,17 +5,21 @@ import json
 import os
 
 # Change Path for each patient
-path = '../json_convert_to_npy/chb06'
-patient_chb = 'chb06'
+patient_chb = 'chb15'
+path = '../json_convert_to_npy/' + patient_chb
 json_filename_array = os.listdir(path)
 json_filename_array.sort()
 sampling_rate = 256
 
 # Get chn first
 # 23 Channels
-ch_names = ['FP1-F7', 'F7-T7', 'T7-P7', 'P7-O1', 'FP1-F3', 'F3-C3', 'C3-P3', 'P3-O1', 'FP2-F4', 'F4-C4', 'C4-P4', 'P4-O2', 'FP2-F8', 'F8-T8', 'T8-P8-0', 'P8-O2', 'FZ-CZ', 'CZ-PZ', 'P7-T7', 'T7-FT9', 'FT9-FT10', 'FT10-T8', 'T8-P8-1']
-# 28 Channels
-# ch_names = ['FP1-F7', 'F7-T7', 'T7-P7', 'P7-O1', '--0', 'FP1-F3', 'F3-C3', 'C3-P3', 'P3-O1', '--1', 'FZ-CZ', 'CZ-PZ', '--2', 'FP2-F4', 'F4-C4', 'C4-P4', 'P4-O2', '--3', 'FP2-F8', 'F8-T8', 'T8-P8-0', 'P8-O2', '--4', 'P7-T7', 'T7-FT9', 'FT9-FT10', 'FT10-T8', 'T8-P8-1']
+# ch_names = ['FP1-F7', 'F7-T7', 'T7-P7', 'P7-O1', 'FP1-F3', 'F3-C3', 'C3-P3', 'P3-O1', 'FP2-F4', 'F4-C4', 'C4-P4', 'P4-O2', 'FP2-F8', 'F8-T8', 'T8-P8-0', 'P8-O2', 'FZ-CZ', 'CZ-PZ', 'P7-T7', 'T7-FT9', 'FT9-FT10', 'FT10-T8', 'T8-P8-1']
+# 28 Channels  
+# ch_names = ['FP1-F7', 'F7-T7', 'T7-P7', 'P7-O1', '.-0', 'FP1-F3', 'F3-C3', 'C3-P3', 'P3-O1', '.-1', 'FZ-CZ', 'CZ-PZ', '.-2', 'FP2-F4', 'F4-C4', 'C4-P4', 'P4-O2', '.-3', 'FP2-F8', 'F8-T8', 'T8-P8-0', 'P8-O2', '.-4', 'P7-T7', 'T7-FT9', 'FT9-FT10', 'FT10-T8', 'T8-P8-1']
+# 29 Channels CHB15
+ch_names = ['FP1-F7', 'F7-T7', 'T7-P7', 'P7-O1', '--0', 'FP1-F3', 'F3-C3', 'C3-P3', 'P3-O1', '--1', 'FZ-CZ', 'CZ-PZ', 'PZ-OZ', '--2', 'FP2-F4', 'F4-C4', 'C4-P4', 'P4-O2', '--3', 'FP2-F8', 'F8-T8', 'T8-P8-0', 'P8-O2', '--4', 'P7-T7', 'T7-FT9', 'FT9-FT10', 'FT10-T8', 'T8-P8-1']
+# 22 Channels for CHB16 part2
+# ch_names = ['FP1-F7', 'F7-T7', 'T7-P7', 'P7-O1', '--0', 'FP1-F3', 'F3-C3', 'C3-P3', 'P3-O1', '--1', 'FZ-CZ', 'CZ-PZ', '--2', 'FP2-F4', 'F4-C4', 'C4-P4', 'P4-O2', '--3', 'FP2-F8', 'F8-T8', 'T8-P8', 'P8-O2']
 
 print(f'Channels name are {ch_names}')
 print(f'There are {len(ch_names)} channels')
@@ -60,14 +64,14 @@ for index, json_filename in enumerate(json_filename_array):
     edf_filename_array.sort()
 
     # Rejected Files
-#     rejected_files = [
-# "chb20_01.edf",
-# "chb20_02.edf",
-# "chb20_03.edf",
-# "chb20_04.edf",
-# "chb20_05.edf",
-# "chb20_06.edf"
-# ]
+    rejected_files = [
+"chb15_01.edf",
+"chb15_02.edf",
+"chb15_03.edf",
+"chb15_04.edf",
+"chb15_05.edf",
+"chb15_06.edf"
+    ]
 
     # Looping through every files in dataset/chbxx/chbxx_xx.edf 
     for index, edf_filename in enumerate(edf_filename_array):
@@ -75,14 +79,19 @@ for index, json_filename in enumerate(json_filename_array):
         if (json_filename.endswith('.json')):
             data_file = path_dataset + '/' + f['raw_name']
             if (edf_name_from_json == edf_filename):
-                # if (edf_filename not in rejected_files):
-                #     break
+                if (edf_filename in rejected_files):
+                    break
                 raw = mne.io.read_raw(data_file) # raw = raw format
                 raw_array = raw.get_data() # raw_array = ndarray format
                 print(raw_array[0].shape)
 
-                # Concat ( New Code )
+                # Every each channels
                 for i in range(len(ch_names)):
+                    
+                    # Ignore channels 
+                    # if i >= 30:
+                    #     continue
+
                     exec(f"main_array_channel_{i} = np.append(main_array_channel_{i}, raw_array{[i]})") 
                 # Should be increasing
                 print(main_array_channel_0.shape)
@@ -95,7 +104,6 @@ for index, json_filename in enumerate(json_filename_array):
 # Copy into bigger array
 main_all_concat = np.zeros([len(ch_names), main_array_channel_0.shape[0]])
 for i in range(len(ch_names)): 
-    # exec(f"main_array_channel_{i} = (main_array_channel_{i}-np.min(main_array_channel_{i}))/(np.max(main_array_channel_{i})-np.min(main_array_channel_{i}))")
     exec(f"main_all_concat{[i]} = main_array_channel_{i}")  
 
 # Delete variable for faster runtime
@@ -132,8 +140,8 @@ print(f'The main_all_concat variable shape is {main_all_concat.shape}')
 # seizure_stop_info  = np.array([18542, 44406, 56423, 60181, 78075]) * sampling_rate
 
 # chb06 
-seizure_start_info = np.array([1724, 21888, 42352, 43554, 49438, 126588, 139321, 157794, 225717, 235233]) * sampling_rate
-seizure_stop_info  = np.array([1738, 21903, 42367, 43574, 49458, 126604, 139333, 157807, 225729, 235249]) * sampling_rate
+# seizure_start_info = np.array([1724, 21888, 42352, 43554, 49438, 126588, 139321, 157794, 225717, 235233]) * sampling_rate
+# seizure_stop_info  = np.array([1738, 21903, 42367, 43574, 49458, 126604, 139333, 157807, 225729, 235249]) * sampling_rate
 
 # chb07
 # seizure_start_info = np.array([144081, 156846, 240635]) * sampling_rate
@@ -179,9 +187,9 @@ seizure_stop_info  = np.array([1738, 21903, 42367, 43574, 49458, 126604, 139333,
 # seizure_stop_info  = np.array([9200, 12192, 13639, 16325, 23479, 42859, 44261, 71249]) * sampling_rate 
 
 # chb15
-# rejected_samples = 21602
-# seizure_start_info = np.array([33484, 51993, 59527, 65409, 69162, 76478, 88153, 105236, 106780, 107764, 114924, 116310, 126780, 129874, 130454, 131135, 131790, 133039, 137562]) * sampling_rate - rejected_samples*sampling_rate
-# seizure_stop_info  = np.array([33515, 52150, 59562, 65464, 69367, 76668, 88273, 105296, 106899, 107827, 115031, 116450, 126851, 129929, 130631, 131206, 131861, 133071, 137670]) * sampling_rate - rejected_samples*sampling_rate
+rejected_samples = 21602
+seizure_start_info = np.array([33484, 51993, 59527, 65409, 69162, 76478, 88153, 105236, 106780, 107764, 114924, 116310, 126780, 129874, 130454, 131135, 131790, 133039, 137562]) * sampling_rate - rejected_samples*sampling_rate
+seizure_stop_info  = np.array([33515, 52150, 59562, 65464, 69367, 76668, 88273, 105296, 106899, 107827, 115031, 116450, 126851, 129929, 130631, 131206, 131861, 133071, 137670]) * sampling_rate - rejected_samples*sampling_rate
 
 # chb16
 # Part 1 
@@ -190,7 +198,6 @@ seizure_stop_info  = np.array([1738, 21903, 42367, 43574, 49458, 126604, 139333,
 # Part 2
 # seizure_start_info = np.array([627, 1909]) * sampling_rate
 # seizure_stop_info  = np.array([635, 1916]) * sampling_rate
-
 
 # chb17
 # seizure_start_info = np.array([2282, 6625, 35536]) * sampling_rate
@@ -202,9 +209,9 @@ seizure_stop_info  = np.array([1738, 21903, 42367, 43574, 49458, 126604, 139333,
 # seizure_stop_info  = np.array([104338, 104982, 110166, 112248, 123349, 125194]) * sampling_rate - rejected_samples*sampling_rate
 
 # chb19
-# rejected_samples 
-# seizure_start_info = np.array([97499, 103776, 107571]) * sampling_rate
-# seizure_stop_info  = np.array([97577, 103853, 107652]) * sampling_rate
+# rejected_samples = 86400
+# seizure_start_info = np.array([97499, 103776, 107571]) * sampling_rate - rejected_samples*sampling_rate
+# seizure_stop_info  = np.array([97577, 103853, 107652]) * sampling_rate - rejected_samples*sampling_rate
 
 # chb20
 # seizure_start_info = np.array([32500, 37446, 38504, 41577, 43596, 44895, 49032, 98723]) * sampling_rate
@@ -231,11 +238,11 @@ main_event_only = np.array([])
 # Manual #
 # 2 Cases ( 1. Enough gap ( > 3hrs ) 2. Not Enough ( 1. < 1 hr  2. < 3 hrs ( same code ))) #
 
-# Seizure 0 ( Less ) 
-seizure_period_0 = main_all_concat[:,: seizure_stop_info[0]]
+# Seizure 0 ( More ) 
+seizure_period_0 = main_all_concat[:, seizure_start_info[0] - 10800*sampling_rate: seizure_stop_info[0]]
 event_period_0   = np.zeros([1, seizure_period_0.shape[1]])
-event_period_0[0][: -(14 * sampling_rate + 1)] = 1
-event_period_0[0][-(14 * sampling_rate):] = 2
+event_period_0[0][-((3600+31) * sampling_rate): -(31 * sampling_rate + 1)] = 1
+event_period_0[0][-(31 * sampling_rate):] = 2
 print(f'{(seizure_period_0.shape)} = {(event_period_0.shape)}')
 print(f'Count 0 in event_period_0: {np.count_nonzero(event_period_0==0)}')
 print(f'Count 1 in event_period_0: {np.count_nonzero(event_period_0==1)}')
@@ -245,78 +252,78 @@ print("-----------------------------------------------------------------")
 # Seizure 1 ( More ) 
 seizure_period_1 = main_all_concat[:, seizure_start_info[1] - 10800*sampling_rate: seizure_stop_info[1]]
 event_period_1   = np.zeros([1, seizure_period_1.shape[1]])
-event_period_1[0][-((3600+15) * sampling_rate): -(15 * sampling_rate + 1)] = 1
-event_period_1[0][-(15 * sampling_rate):] = 2
+event_period_1[0][-((3600+157) * sampling_rate): -(157 * sampling_rate + 1)] = 1
+event_period_1[0][-(157 * sampling_rate):] = 2
 print(f'Count 0 in event_period_1: {np.count_nonzero(event_period_1==0)}')
 print(f'Count 1 in event_period_1: {np.count_nonzero(event_period_1==1)}')
 print(f'Count 2 in event_period_1: {np.count_nonzero(event_period_1==2)}')
 print("-----------------------------------------------------------------")
 
-# Seizure 2 ( More ) 
-seizure_period_2 = main_all_concat[:,seizure_start_info[2]- 10800*sampling_rate: seizure_stop_info[2]]
+# Seizure 2 ( Less ) 
+seizure_period_2 = main_all_concat[:, seizure_stop_info[1]: seizure_stop_info[2]]
 event_period_2   = np.zeros([1, seizure_period_2.shape[1]])
-event_period_2[0][-((3600+15) * sampling_rate): -(15 * sampling_rate + 1)] = 1
-event_period_2[0][-(15 * sampling_rate):] = 2
+event_period_2[0][-((3600+35) * sampling_rate): -(35 * sampling_rate + 1)] = 1
+event_period_2[0][-(35 * sampling_rate):] = 2
 print(f'Count 0 in event_period_2: {np.count_nonzero(event_period_2==0)}')
 print(f'Count 1 in event_period_2: {np.count_nonzero(event_period_2==1)}')
 print(f'Count 2 in event_period_2: {np.count_nonzero(event_period_2==2)}')
 print("-----------------------------------------------------------------")
 
 # Seizure 3 ( Less ) 
-seizure_period_3 = main_all_concat[:, seizure_stop_info[2] : seizure_stop_info[3]]
+seizure_period_3 = main_all_concat[:, seizure_stop_info[2]: seizure_stop_info[3]]
 event_period_3   = np.zeros([1, seizure_period_3.shape[1]])
-event_period_3[0][: -(20 * sampling_rate + 1)] = 1
-event_period_3[0][-(20 * sampling_rate):] = 2
-print(f'Count 0 in event_period_2: {np.count_nonzero(event_period_3==0)}')
-print(f'Count 1 in event_period_2: {np.count_nonzero(event_period_3==1)}')
-print(f'Count 2 in event_period_2: {np.count_nonzero(event_period_3==2)}')
+event_period_3[0][-((3600+55) * sampling_rate): -(55 * sampling_rate + 1)] = 1
+event_period_3[0][-(55 * sampling_rate):] = 2
+print(f'Count 0 in event_period_3: {np.count_nonzero(event_period_3==0)}')
+print(f'Count 1 in event_period_3: {np.count_nonzero(event_period_3==1)}')
+print(f'Count 2 in event_period_3: {np.count_nonzero(event_period_3==2)}')
 print("-----------------------------------------------------------------")
 
 # Seizure 4 ( Less ) 
 seizure_period_4 = main_all_concat[:, seizure_stop_info[3]: seizure_stop_info[4]]
 event_period_4   = np.zeros([1, seizure_period_4.shape[1]])
-event_period_4[0][-((3600+20) * sampling_rate): -(20 * sampling_rate + 1)] = 1
-event_period_4[0][-(20 * sampling_rate):] = 2
-print(f'Count 0 in event_period_2: {np.count_nonzero(event_period_4==0)}')
-print(f'Count 1 in event_period_2: {np.count_nonzero(event_period_4==1)}')
-print(f'Count 2 in event_period_2: {np.count_nonzero(event_period_4==2)}')
+event_period_4[0][-((3600+205) * sampling_rate): -(205 * sampling_rate + 1)] = 1
+event_period_4[0][-(205 * sampling_rate):] = 2
+print(f'Count 0 in event_period_4: {np.count_nonzero(event_period_4==0)}')
+print(f'Count 1 in event_period_4: {np.count_nonzero(event_period_4==1)}')
+print(f'Count 2 in event_period_4: {np.count_nonzero(event_period_4==2)}')
 print("-----------------------------------------------------------------")
 
-# Seizure 5 ( More ) 
-seizure_period_5 = main_all_concat[:, seizure_start_info[5]- 10800*sampling_rate: seizure_stop_info[5]]
+# Seizure 5 ( Less ) 
+seizure_period_5 = main_all_concat[:, seizure_stop_info[4]: seizure_stop_info[5]]
 event_period_5   = np.zeros([1, seizure_period_5.shape[1]])
-event_period_5[0][-((3600+16) * sampling_rate): -(16 * sampling_rate + 1)] = 1
-event_period_5[0][-(16 * sampling_rate):] = 2
-print(f'Count 0 in event_period_2: {np.count_nonzero(event_period_5==0)}')
-print(f'Count 1 in event_period_2: {np.count_nonzero(event_period_5==1)}')
-print(f'Count 2 in event_period_2: {np.count_nonzero(event_period_5==2)}')
+event_period_5[0][-((3600+190) * sampling_rate): -(190 * sampling_rate + 1)] = 1
+event_period_5[0][-(190 * sampling_rate):] = 2
+print(f'Count 0 in event_period_5: {np.count_nonzero(event_period_5==0)}')
+print(f'Count 1 in event_period_5: {np.count_nonzero(event_period_5==1)}')
+print(f'Count 2 in event_period_5: {np.count_nonzero(event_period_5==2)}')
 print("-----------------------------------------------------------------")
 
 # Seizure 6 ( More ) 
 seizure_period_6 = main_all_concat[:, seizure_start_info[6] - 10800*sampling_rate: seizure_stop_info[6]]
 event_period_6   = np.zeros([1, seizure_period_6.shape[1]])
-event_period_6[0][-((3600+12) * sampling_rate): -(12 * sampling_rate + 1)] = 1
-event_period_6[0][-(12 * sampling_rate):] = 2
-print(f'Count 0 in event_period_2: {np.count_nonzero(event_period_6==0)}')
-print(f'Count 1 in event_period_2: {np.count_nonzero(event_period_6==1)}')
-print(f'Count 2 in event_period_2: {np.count_nonzero(event_period_6==2)}')
+event_period_6[0][-((3600+120) * sampling_rate): -(120 * sampling_rate + 1)] = 1
+event_period_6[0][-(120 * sampling_rate):] = 2
+print(f'Count 0 in event_period_6: {np.count_nonzero(event_period_6==0)}')
+print(f'Count 1 in event_period_6: {np.count_nonzero(event_period_6==1)}')
+print(f'Count 2 in event_period_6: {np.count_nonzero(event_period_6==2)}')
 print("-----------------------------------------------------------------")
 
 # Seizure 7 ( More ) 
 seizure_period_7 = main_all_concat[:, seizure_start_info[7] - 10800*sampling_rate: seizure_stop_info[7]]
 event_period_7   = np.zeros([1, seizure_period_7.shape[1]])
-event_period_7[0][-((3600+13) * sampling_rate): -(13 * sampling_rate + 1)] = 1
-event_period_7[0][-(13 * sampling_rate):] = 2
+event_period_7[0][-((3600+60) * sampling_rate): -(60 * sampling_rate + 1)] = 1
+event_period_7[0][-(60 * sampling_rate):] = 2
 print(f'Count 0 in event_period_7: {np.count_nonzero(event_period_7==0)}')
 print(f'Count 1 in event_period_7: {np.count_nonzero(event_period_7==1)}')
 print(f'Count 2 in event_period_7: {np.count_nonzero(event_period_7==2)}')
 print("-----------------------------------------------------------------")
 
-# Seizure 8 ( More ) 
-seizure_period_8 = main_all_concat[:, seizure_start_info[8] - 10800*sampling_rate: seizure_stop_info[8]]
+# Seizure 8 ( Less ) 
+seizure_period_8 = main_all_concat[:, seizure_stop_info[7]: seizure_stop_info[8]]
 event_period_8   = np.zeros([1, seizure_period_8.shape[1]])
-event_period_8[0][-((3600+12) * sampling_rate): -(12 * sampling_rate + 1)] = 1
-event_period_8[0][-(12 * sampling_rate):] = 2
+event_period_8[0][: -(119 * sampling_rate + 1)] = 1
+event_period_8[0][-(119 * sampling_rate):] = 2
 print(f'Count 0 in event_period_8: {np.count_nonzero(event_period_8==0)}')
 print(f'Count 1 in event_period_8: {np.count_nonzero(event_period_8==1)}')
 print(f'Count 2 in event_period_8: {np.count_nonzero(event_period_8==2)}')
@@ -325,109 +332,107 @@ print("-----------------------------------------------------------------")
 # Seizure 9 ( Less ) 
 seizure_period_9 = main_all_concat[:, seizure_stop_info[8]: seizure_stop_info[9]]
 event_period_9   = np.zeros([1, seizure_period_9.shape[1]])
-event_period_9[0][-((3600+16) * sampling_rate): -(16 * sampling_rate + 1)] = 1
-event_period_9[0][-(16 * sampling_rate):] = 2
-print(f'Count 0 in event_period_2: {np.count_nonzero(event_period_9==0)}')
-print(f'Count 1 in event_period_2: {np.count_nonzero(event_period_9==1)}')
-print(f'Count 2 in event_period_2: {np.count_nonzero(event_period_9==2)}')
+event_period_9[0][: -(63 * sampling_rate + 1)] = 1
+event_period_9[0][-(63 * sampling_rate):] = 2
+print(f'Count 0 in event_period_9: {np.count_nonzero(event_period_9==0)}')
+print(f'Count 1 in event_period_9: {np.count_nonzero(event_period_9==1)}')
+print(f'Count 2 in event_period_9: {np.count_nonzero(event_period_9==2)}')
 print("-----------------------------------------------------------------")
-#-------------------------------------------------------------------------------------------------------------#
 
-# # # Seizure 10 ( Less ) 
-# seizure_period_10 = main_all_concat[:, seizure_stop_info[9]: seizure_stop_info[10]]
-# event_period_10   = np.zeros([1, seizure_period_10.shape[1]])
-# event_period_10[0][: -(29 * sampling_rate + 1)] = 1
-# event_period_10[0][-(29 * sampling_rate):] = 2
-# print(f'Count 0 in event_period_2: {np.count_nonzero(event_period_10==0)}')
-# print(f'Count 1 in event_period_2: {np.count_nonzero(event_period_10==1)}')
-# print(f'Count 2 in event_period_2: {np.count_nonzero(event_period_10==2)}')
-# print("-----------------------------------------------------------------")
+# Seizure 10 ( Less ) 
+seizure_period_10 = main_all_concat[:, seizure_stop_info[9]: seizure_stop_info[10]]
+event_period_10   = np.zeros([1, seizure_period_10.shape[1]])
+event_period_10[0][-((3600+107) * sampling_rate): -(107 * sampling_rate + 1)] = 1
+event_period_10[0][-(107 * sampling_rate):] = 2
+print(f'Count 0 in event_period_10: {np.count_nonzero(event_period_10==0)}')
+print(f'Count 1 in event_period_10: {np.count_nonzero(event_period_10==1)}')
+print(f'Count 2 in event_period_10: {np.count_nonzero(event_period_10==2)}')
+print("-----------------------------------------------------------------")
 
-# # Seizure 11 ( Less ) 
-# seizure_period_11 = main_all_concat[:, seizure_stop_info[10]: seizure_stop_info[11]]
-# event_period_11   = np.zeros([1, seizure_period_11.shape[1]])
-# event_period_11[0][: -(25 * sampling_rate + 1)] = 1
-# event_period_11[0][-(25 * sampling_rate):] = 2
-# print(f'Count 0 in event_period_2: {np.count_nonzero(event_period_11==0)}')
-# print(f'Count 1 in event_period_2: {np.count_nonzero(event_period_11==1)}')
-# print(f'Count 2 in event_period_2: {np.count_nonzero(event_period_11==2)}')
-# print("-----------------------------------------------------------------")
+# Seizure 11 ( Less ) 
+seizure_period_11 = main_all_concat[:, seizure_stop_info[10]: seizure_stop_info[11]]
+event_period_11   = np.zeros([1, seizure_period_11.shape[1]])
+event_period_11[0][: -(140 * sampling_rate + 1)] = 1
+event_period_11[0][-(140 * sampling_rate):] = 2
+print(f'Count 0 in event_period_11: {np.count_nonzero(event_period_11==0)}')
+print(f'Count 1 in event_period_11: {np.count_nonzero(event_period_11==1)}')
+print(f'Count 2 in event_period_11: {np.count_nonzero(event_period_11==2)}')
+print("-----------------------------------------------------------------")
 
-# # Seizure 12 ( More ) 
-# seizure_period_12 = main_all_concat[:, seizure_stop_info[11] : seizure_stop_info[12]]
-# event_period_12   = np.zeros([1, seizure_period_12.shape[1]])
-# event_period_12[0][: -(23 * sampling_rate + 1)] = 1
-# event_period_12[0][-(23 * sampling_rate):] = 2
-# print(f'Count 0 in event_period_2: {np.count_nonzero(event_period_12==0)}')
-# print(f'Count 1 in event_period_2: {np.count_nonzero(event_period_12==1)}')
-# print(f'Count 2 in event_period_2: {np.count_nonzero(event_period_12==2)}')
-# print("-----------------------------------------------------------------")
+# Seizure 12 ( Less ) 
+seizure_period_12 = main_all_concat[:, seizure_stop_info[11]: seizure_stop_info[12]]
+event_period_12   = np.zeros([1, seizure_period_12.shape[1]])
+event_period_12[0][-((3600+71) * sampling_rate): -(71 * sampling_rate + 1)] = 1
+event_period_12[0][-(71 * sampling_rate):] = 2
+print(f'Count 0 in event_period_12: {np.count_nonzero(event_period_12==0)}')
+print(f'Count 1 in event_period_12: {np.count_nonzero(event_period_12==1)}')
+print(f'Count 2 in event_period_12: {np.count_nonzero(event_period_12==2)}')
+print("-----------------------------------------------------------------")
 
-# # Seizure 13 ( Less ) 
-# seizure_period_13 = main_all_concat[:, seizure_stop_info[12]: seizure_stop_info[13]]
-# event_period_13   = np.zeros([1, seizure_period_13.shape[1]])
-# event_period_13[0][: -(40 * sampling_rate + 1)] = 1
-# event_period_13[0][-(40 * sampling_rate):] = 2
-# print(f'Count 0 in event_period_2: {np.count_nonzero(event_period_13==0)}')
-# print(f'Count 1 in event_period_2: {np.count_nonzero(event_period_13==1)}')
-# print(f'Count 2 in event_period_2: {np.count_nonzero(event_period_13==2)}')
-# print("-----------------------------------------------------------------")
+# Seizure 13 ( Less ) 
+seizure_period_13 = main_all_concat[:, seizure_stop_info[12]: seizure_stop_info[13]]
+event_period_13   = np.zeros([1, seizure_period_13.shape[1]])
+event_period_13[0][: -(55 * sampling_rate + 1)] = 1
+event_period_13[0][-(55 * sampling_rate):] = 2
+print(f'Count 0 in event_period_13: {np.count_nonzero(event_period_13==0)}')
+print(f'Count 1 in event_period_13: {np.count_nonzero(event_period_13==1)}')
+print(f'Count 2 in event_period_13: {np.count_nonzero(event_period_13==2)}')
+print("-----------------------------------------------------------------")
 
-# # Seizure 14 ( Less ) 
-# seizure_period_14 = main_all_concat[:, seizure_stop_info[13]: seizure_stop_info[14]]
-# event_period_14   = np.zeros([1, seizure_period_14.shape[1]])
-# event_period_14[0][: -(177 * sampling_rate + 1)] = 1
-# event_period_14[0][-(177 * sampling_rate):] = 2
-# print(f'Count 0 in event_period_2: {np.count_nonzero(event_period_14==0)}')
-# print(f'Count 1 in event_period_2: {np.count_nonzero(event_period_14==1)}')
-# print(f'Count 2 in event_period_2: {np.count_nonzero(event_period_14==2)}')
-# print("-----------------------------------------------------------------")
+# Seizure 14 ( Less ) 
+seizure_period_14 = main_all_concat[:, seizure_stop_info[13]: seizure_stop_info[14]]
+event_period_14   = np.zeros([1, seizure_period_14.shape[1]])
+event_period_14[0][: -(177 * sampling_rate + 1)] = 1
+event_period_14[0][-(177 * sampling_rate):] = 2
+print(f'Count 0 in event_period_14: {np.count_nonzero(event_period_14==0)}')
+print(f'Count 1 in event_period_14: {np.count_nonzero(event_period_14==1)}')
+print(f'Count 2 in event_period_14: {np.count_nonzero(event_period_14==2)}')
+print("-----------------------------------------------------------------")
 
-# # Seizure 15 ( Less ) 
-# seizure_period_15 = main_all_concat[:, seizure_stop_info[14]: seizure_stop_info[15]]
-# event_period_15   = np.zeros([1, seizure_period_15.shape[1]])
-# event_period_15[0][: -(71 * sampling_rate + 1)] = 1
-# event_period_15[0][-(71 * sampling_rate):] = 2
-# print(f'Count 0 in event_period_2: {np.count_nonzero(event_period_15==0)}')
-# print(f'Count 1 in event_period_2: {np.count_nonzero(event_period_15==1)}')
-# print(f'Count 2 in event_period_2: {np.count_nonzero(event_period_15==2)}')
-# print("-----------------------------------------------------------------")
+# Seizure 15 ( Less ) 
+seizure_period_15 = main_all_concat[:, seizure_stop_info[14]: seizure_stop_info[15]]
+event_period_15   = np.zeros([1, seizure_period_15.shape[1]])
+event_period_15[0][: -(71 * sampling_rate + 1)] = 1
+event_period_15[0][-(71 * sampling_rate):] = 2
+print(f'Count 0 in event_period_15: {np.count_nonzero(event_period_15==0)}')
+print(f'Count 1 in event_period_15: {np.count_nonzero(event_period_15==1)}')
+print(f'Count 2 in event_period_15: {np.count_nonzero(event_period_15==2)}')
+print("-----------------------------------------------------------------")
 
-# # Seizure 16 ( Less ) 
-# seizure_period_16 = main_all_concat[:, seizure_stop_info[15]: seizure_stop_info[16]]
-# event_period_16   = np.zeros([1, seizure_period_16.shape[1]])
-# event_period_16[0][: -(71 * sampling_rate + 1)] = 1
-# event_period_16[0][-(71 * sampling_rate):] = 2
-# print(f'Count 0 in event_period_2: {np.count_nonzero(event_period_16==0)}')
-# print(f'Count 1 in event_period_2: {np.count_nonzero(event_period_16==1)}')
-# print(f'Count 2 in event_period_2: {np.count_nonzero(event_period_16==2)}')
-# print("-----------------------------------------------------------------")
+# Seizure 16 ( Less ) 
+seizure_period_16 = main_all_concat[:, seizure_stop_info[15]: seizure_stop_info[16]]
+event_period_16   = np.zeros([1, seizure_period_16.shape[1]])
+event_period_16[0][: -(71 * sampling_rate + 1)] = 1
+event_period_16[0][-(71 * sampling_rate):] = 2
+print(f'Count 0 in event_period_16: {np.count_nonzero(event_period_16==0)}')
+print(f'Count 1 in event_period_16: {np.count_nonzero(event_period_16==1)}')
+print(f'Count 2 in event_period_16: {np.count_nonzero(event_period_16==2)}')
+print("-----------------------------------------------------------------")
 
-# # Seizure 17 ( Less ) 
-# seizure_period_17 = main_all_concat[:, seizure_stop_info[16]: seizure_stop_info[17]]
-# event_period_17   = np.zeros([1, seizure_period_17.shape[1]])
-# event_period_17[0][: -(32 * sampling_rate + 1)] = 1
-# event_period_17[0][-(32 * sampling_rate):] = 2
-# print(f'Count 0 in event_period_2: {np.count_nonzero(event_period_17==0)}')
-# print(f'Count 1 in event_period_2: {np.count_nonzero(event_period_17==1)}')
-# print(f'Count 2 in event_period_2: {np.count_nonzero(event_period_17==2)}')
-# print("-----------------------------------------------------------------")
+# Seizure 17 ( Less ) 
+seizure_period_17 = main_all_concat[:, seizure_stop_info[16]: seizure_stop_info[17]]
+event_period_17   = np.zeros([1, seizure_period_17.shape[1]])
+event_period_17[0][: -(32 * sampling_rate + 1)] = 1
+event_period_17[0][-(32 * sampling_rate):] = 2
+print(f'Count 0 in event_period_16: {np.count_nonzero(event_period_17==0)}')
+print(f'Count 1 in event_period_16: {np.count_nonzero(event_period_17==1)}')
+print(f'Count 2 in event_period_16: {np.count_nonzero(event_period_17==2)}')
+print("-----------------------------------------------------------------")
 
-# # Seizure 18 ( Less ) 
-# seizure_period_18 = main_all_concat[:, seizure_stop_info[17]: seizure_stop_info[18]]
-# event_period_18   = np.zeros([1, seizure_period_18.shape[1]])
-# event_period_18[0][-((3600+108) * sampling_rate): -(108 * sampling_rate + 1)] = 1
-# event_period_18[0][-(108 * sampling_rate):] = 2
-# print(f'Count 0 in event_period_2: {np.count_nonzero(event_period_18==0)}')
-# print(f'Count 1 in event_period_2: {np.count_nonzero(event_period_18==1)}')
-# print(f'Count 2 in event_period_2: {np.count_nonzero(event_period_18==2)}')
-# print("-----------------------------------------------------------------")
-
+# Seizure 18 ( Less ) 
+seizure_period_18 = main_all_concat[:, seizure_stop_info[17]: seizure_stop_info[18]]
+event_period_18   = np.zeros([1, seizure_period_18.shape[1]])
+event_period_18[0][-((3600+108) * sampling_rate): -(108 * sampling_rate + 1)] = 1
+event_period_18[0][-(108 * sampling_rate):] = 2
+print(f'Count 0 in event_period_18: {np.count_nonzero(event_period_18==0)}')
+print(f'Count 1 in event_period_18: {np.count_nonzero(event_period_18==1)}')
+print(f'Count 2 in event_period_18: {np.count_nonzero(event_period_18==2)}')
+print("-----------------------------------------------------------------")
 
 #-------------------------------------------------------------------------------------------------------------#
 # Stack seizure with event
-main_seizure_only = np.hstack((seizure_period_0, seizure_period_1, seizure_period_2, seizure_period_3, seizure_period_4))
-main_event_only  = np.hstack((event_period_0, event_period_1, event_period_2, event_period_3, event_period_4))
+main_seizure_only = np.hstack((seizure_period_0, seizure_period_1, seizure_period_2, seizure_period_3, seizure_period_4, seizure_period_5, seizure_period_6, seizure_period_7, seizure_period_8, seizure_period_9, seizure_period_10, seizure_period_11, seizure_period_12, seizure_period_13, seizure_period_14, seizure_period_15, seizure_period_16, seizure_period_17, seizure_period_18))
+main_event_only  = np.hstack((event_period_0, event_period_1, event_period_2, event_period_3, event_period_4, event_period_5, event_period_6, event_period_7, event_period_8, event_period_9, event_period_10, event_period_11, event_period_12, event_period_13, event_period_14, event_period_15, event_period_16, event_period_17, event_period_18))
 data_with_event = np.vstack((main_seizure_only, main_event_only))
 
 # Debugging line
@@ -436,8 +441,11 @@ print(f'data array stacked shape is: {data_with_event.shape}')
 
 # Save file take some times
 print('-------May take long time to save, be patient---------')
-filename = "./8bands-nonorm/8bands-chb06-data-crop.npy"
+
+filename = "./8bands-nonorm/" + patient_chb + "/8bands-" + patient_chb + "-data-crop.npy"
 np.save(filename, data_with_event)
+os.system('say "finish"')
+print("\007\007\007")
 
 """
 

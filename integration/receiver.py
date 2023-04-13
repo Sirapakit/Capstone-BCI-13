@@ -4,21 +4,13 @@ import sys
 from scipy import signal
 import pickle
 from termcolor import colored
-import os
 
-import gc
+import simpleaudio as sa
+
 
 NUM_BANDS = 8
 SAMPLING_FREQ = 256
 WINDOW_LENGTH = 8   # sec
-
-# def clear_ram(self):
-#     del self.Fp2_F8_data
-#     del self.data_filtered_array
-#     del self.energy_array
-#     del self.pred
-#     del self.message
-#     gc.collect()
 
 logging.basicConfig(level=logging.INFO)
 class receiveData():
@@ -26,10 +18,15 @@ class receiveData():
         self.queue3 = queue3
         
     def process_data(self):
+        self.prediction_score = 0
+        self.seizure_score = 0
+        self.prediction_array = np.array([])
+        wave_obj = sa.WaveObject.from_wave_file("./prediction_realtime_chb03/sound/sound.wav")
+
         while True:
             if not self.queue3.empty():
                 self.window_chn0 = self.queue3.get()
-                print(f"Received data shape: {self.window_chn0.shape}")
+                # print(f"Received data shape: {self.window_chn0.shape}")
                 
                 # Filter Bank Coefficients
                 filter_band_1 = np.array([-0.00107993806311353, -0.00106217163565181, -0.00104510238307734, -0.00102882032057693, -0.00101357133327608, -0.000999782376564196, -0.000988081923526628, -0.000979314791103734, -0.000974550588472947, -0.000975085164257233, -0.000982434580981359, -0.000998321312744441, -0.00102465254197012, -0.00106349061961468, -0.00111701594637719, -0.00118748272610121, -0.00127716823242759, -0.00138831641158684, -0.00152307681382854, -0.00168343999936680, -0.00187117069813066, -0.00208774011264687, -0.00233425883707135, -0.00261141192023950, -0.00291939762469068, -0.00325787142560709, -0.00362589675279992, -0.00402190390525106, -0.00444365846192655, -0.00488824037594689, -0.00535203477371457, -0.00583073528887907, -0.00631936054626844, -0.00681228417687241, -0.00730327849582716, -0.00778557171571805, -0.00825191830227724, -0.00869468181380980, -0.00910592930464674, -0.00947753612181550, -0.00980129968806068, -0.0100690606482630, -0.0102728295648152, -0.0104049171848486, -0.0104580661720998, -0.0104255821018470, -0.0103014614612624, -0.0100805143815706, -0.00975847985367612, -0.00933213124576528, -0.00879937004933520, -0.00815930592792519, -0.00741232132849578, -0.00656011913616001, -0.00560575210535546, -0.00455363308044548, -0.00340952532147838, -0.00218051257124607, -0.000874948832308795, 0.000497611838562294, 0.00192650487206738, 0.00340006308460933, 0.00490574163233417, 0.00643025841693759, 0.00795974805938918, 0.00947992730667490, 0.0109762695191370, 0.0124341857062006, 0.0138392094397595, 0.0151771828800697, 0.0164344411006942, 0.0175979918980667, 0.0186556883179377, 0.0195963912248275, 0.0204101193802545, 0.0210881846787323, 0.0216233104143159, 0.0220097307110830, 0.0222432695439173, 0.0223213980962941, 0.0222432695439173, 0.0220097307110830, 0.0216233104143159, 0.0210881846787323, 0.0204101193802545, 0.0195963912248275, 0.0186556883179377, 0.0175979918980667, 0.0164344411006942, 0.0151771828800697, 0.0138392094397595, 0.0124341857062006, 0.0109762695191370, 0.00947992730667490, 0.00795974805938918, 0.00643025841693759, 0.00490574163233417, 0.00340006308460933, 0.00192650487206738, 0.000497611838562294, -0.000874948832308795, -0.00218051257124607, -0.00340952532147838, -0.00455363308044548, -0.00560575210535546, -0.00656011913616001, -0.00741232132849578, -0.00815930592792519, -0.00879937004933520, -0.00933213124576528, -0.00975847985367612, -0.0100805143815706, -0.0103014614612624, -0.0104255821018470, -0.0104580661720998, -0.0104049171848486, -0.0102728295648152, -0.0100690606482630, -0.00980129968806068, -0.00947753612181550, -0.00910592930464674, -0.00869468181380980, -0.00825191830227724, -0.00778557171571805, -0.00730327849582716, -0.00681228417687241, -0.00631936054626844, -0.00583073528887907, -0.00535203477371457, -0.00488824037594689, -0.00444365846192655, -0.00402190390525106, -0.00362589675279992, -0.00325787142560709, -0.00291939762469068, -0.00261141192023950, -0.00233425883707135, -0.00208774011264687, -0.00187117069813066, -0.00168343999936680, -0.00152307681382854, -0.00138831641158684, -0.00127716823242759, -0.00118748272610121, -0.00111701594637719, -0.00106349061961468, -0.00102465254197012, -0.000998321312744441, -0.000982434580981359, -0.000975085164257233, -0.000974550588472947, -0.000979314791103734, -0.000988081923526628, -0.000999782376564196, -0.00101357133327608, -0.00102882032057693, -0.00104510238307734, -0.00106217163565181, -0.00107993806311353])
@@ -52,7 +49,7 @@ class receiveData():
                     self.data_filtered_array[i*NUM_BANDS+5][:]  = signal.filtfilt(filter_band_6, 1, self.window_chn0[i])
                     self.data_filtered_array[i*NUM_BANDS+6][:]  = signal.filtfilt(filter_band_7, 1, self.window_chn0[i])
                     self.data_filtered_array[i*NUM_BANDS+7][:]  = signal.filtfilt(filter_band_8, 1, self.window_chn0[i])
-                print(f"----------Convolution output is {self.data_filtered_array.shape[0]} bands----------å")
+                # print(f"----------Convolution output is {self.data_filtered_array.shape[0]} bands----------å")
 
                 # Energy from Normalise Convolution
                 self.energy_array = np.zeros((self.window_chn0.shape[0]*NUM_BANDS, 1))  
@@ -74,9 +71,9 @@ class receiveData():
                     # self.energy_array[i*NUM_BANDS+5][:] = np.sum(np.power(self.data_filtered_array[i*NUM_BANDS+5], 2))
                     # self.energy_array[i*NUM_BANDS+6][:] = np.sum(np.power(self.data_filtered_array[i*NUM_BANDS+6], 2))
                     # self.energy_array[i*NUM_BANDS+7][:] = np.sum(np.power(self.data_filtered_array[i*NUM_BANDS+7], 2))
-                print(f"----------Energy output is {self.energy_array.shape} bands----------å")
+                # print(f"----------Energy output is {self.energy_array.shape} bands----------å")
                 
-                print(f"Shape OUTPUT before prediction is {self.energy_array.shape}")
+                # print(f"Shape OUTPUT before prediction is {self.energy_array.shape}")
 
                 # Prediction
                 # self.energy_array = self.energy_array * 40000.0
@@ -86,38 +83,59 @@ class receiveData():
                     self.energy_array = np.zeros((1, 32))
                     print("self.energy array contains NAN")
 
-                print(f"Final OUTPUT is {self.energy_array}")
+                # print(f"Final OUTPUT is {self.energy_array}")
                 # print(f"Shape OUTPUT reshape is {self.energy_array.shape}")
 
-                with open("./model_chb03_4chn_coeff.pkl", "rb") as file:
+                # with open("./model_chb03_4chn_coeff.pkl", "rb") as file:
+                with open("./model_chb17_4chn_coeff.pkl", "rb") as file:
+                # with open("./model_chb06_4chn_coeff.pkl", "rb") as file:
                     model = pickle.load(file)
                     self.pred = model.predict(self.energy_array)
-                    # self.pred[0] = 2
                     print(f"Prediction is {self.pred}")
-                    count = 1
-                    num_window = 103
-                    for i in range(num_window):
-                        if self.pred[0] == 0:
-                            print(colored("Non-seizure","green"))
-                            os.system('say "Non-seizure"')
-                            self.message = 'Non-seizure'
-                            np.savetxt(f'../integration/prediction_realtime_chb03/pred_{count}.txt',self.message)
-                            
-                        elif self.pred[0] == 1:
-                            print(colored("Preictal","yellow"))
-                            os.system('say "Pre-Ictal"')
-                            self.message = 'Preictal'
-                            np.savetxt(f'../integration/prediction_realtime_chb03/pred_{count}.txt',self.message)
+                    
+                    if self.pred[0] == 0:
+                        self.prediction_score = 0
+                        self.seizure_score = 0
+                        print(colored("Non-seizure","green"))
+                        self.prediction_array = np.hstack((self.prediction_array, 0))
+                        print(f'Prediction Array is {self.prediction_array}')
+                        # self.message = 'Non-seizure'
+                        # sys.stdout.write(self.message)
+                        # print(f"Prediction_score reset to {self.prediction_score}") # debugging line
                         
-                        elif self.pred[0] == 2:
-                            print(colored("Seizure","red"))
-                            os.system('say "Seizure"')
-                            self.message = 'Seizure'
-                            np.savetxt(f'../integration/prediction_realtime_chb03/pred_{count}.txt',self.message)
-                        
-                        else:
-                            raise KeyError ("Error Prediction")
-                        count +=1 
+                    elif self.pred[0] == 1:
+                        self.prediction_score += 1
+                        self.seizure_score = 0
+                        print(colored("Preictal","yellow"))
+                        self.prediction_array = np.hstack((self.prediction_array, 1))
+                        print(f'Prediction Array is {self.prediction_array}')
+                        # self.message = 'Preictal'
+                        # print(f"Prediction_score add 1 = {self.prediction_score}") # debugging line
 
-                # clear_ram()
-                sys.stdout.flush()
+                        if self.prediction_score >= 5:
+                            self.message = "START"
+                            sys.stdout.write(self.message)
+                            # play_obj = wave_obj.play()
+                            # play_obj.wait_done()
+                    
+                    elif self.pred[0] == 2:
+                        self.prediction_score = 0
+                        self.seizure_score += 1
+                        print(colored("Seizure","red"))
+                        self.prediction_array = np.hstack((self.prediction_array, 2))
+                        print(f'Prediction Array is {self.prediction_array}')
+
+                        if self.seizure_score >= 2:
+                            self.message = "STOP"
+                            # sys.stdout.write(self.message)
+                            # play_obj = wave_obj.play()
+                            # play_obj.wait_done()
+                        else: 
+                            self.message = "START"
+                            # sys.stdout.write(self.message)
+
+                    
+                    else:
+                        raise KeyError ("Error Prediction")
+                    
+                    sys.stdout.flush()

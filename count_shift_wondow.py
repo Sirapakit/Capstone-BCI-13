@@ -1,5 +1,5 @@
 import numpy as np
-second = int(420)
+second = int(1738)
 array = np.arange(second)  # Count window
 
 start = 0

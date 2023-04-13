@@ -7,6 +7,7 @@ import pylsl
 from typing import List
 from pylsl import StreamInlet, resolve_stream
 import sys
+import timeit
 
 SAMPLING_FREQ = 256
 WINDOW_LENGTH = 8   # sec
@@ -15,6 +16,8 @@ OVERLAP_PERCENT = 0.5
 SHIFTED_DURATION = 4 # sec
 
 logging.basicConfig(level=logging.INFO)
+overall_start_time = timeit.default_timer()
+
 class sendData():
     Fp2_F8_data = np.zeros((SAMPLING_FREQ*WINDOW_LENGTH),dtype='float64') 
 
@@ -107,7 +110,7 @@ class sendData():
                 # Code for cropping to 1024 samples for every main chunk
                 if (self.main_chunk_chn0.shape[1] >= 1024): 
                     diff = (self.main_chunk_chn0.shape[1]) - 1024
-                    print(f"Diff is {diff}")
+                    # print(f"Diff is {diff}")
 
                     if (diff == 0):
                         # if main chunk is 1024 samples --> put to queue2
@@ -124,7 +127,7 @@ class sendData():
                         # crop hstack to 1024 samples --> put to queue2
                         self.queue2.put(self.put_chunk_chn0)
                         # print(f"Put chunk is {self.put_chunk_chn0}")            # Main chunk before cropping
-                        print(f"Put chunk size is {self.put_chunk_chn0.shape}") # Main chunk before cropping sizw
+                        # print(f"Put chunk size is {self.put_chunk_chn0.shape}") # Main chunk before cropping sizw
                         print(f"Successfully put main chunk to queue2")
 
                         # main_chunk = main_chunk[-diff:]
@@ -152,7 +155,7 @@ class sendData():
                 self.main_channel_0_roll[:, SAMPLING_FREQ*SHIFTED_DURATION:] = self.queue2_samples_chn_0
 
                 # print(f"Channel 0 After roll :\n {self.main_channel_0_roll}")
-                print(f"Size after roll :{self.main_channel_0_roll.shape}")
+                # print(f"Size after roll :{self.main_channel_0_roll.shape}")
 
                 sys.stdout.flush()
                 self.queue3.put(self.main_channel_0_roll)
@@ -160,4 +163,10 @@ class sendData():
     
                 # self.put_flag.clear()
                 # self.roll_flag.clear()
+
+                # End overall runtime timer
+                overall_end_time = timeit.default_timer()
+                overall_elapsed_time = overall_end_time - overall_start_time
+                print(f'Overall time taken: {overall_elapsed_time} seconds')
+
                 time.sleep(1)
